@@ -45,7 +45,7 @@ class Preprocessing(data:DataFrame) {
 
   private val finisher = new Finisher()
     .setInputCols("lemmatized")
-    .setOutputCols("cleanedText")
+    .setOutputCols("cleanText")
     .setCleanAnnotations(false)
 
 

@@ -42,11 +42,11 @@ object Application {
     val result = new Preprocessing(tweetDF).getResult()
     //transform preprocessing result into Tweets
     val cleanTweets:RDD[Tweet] = result.as[Tweet].rdd
-    cleanTweets.first()
+    cleanTweets.take(10).foreach(f => println(f))
+
     if(safeTweets) IOUtils.DataFrameToJsonFile(tweetDF, "tweets_clean", true)
 
-    //Sentiment analysis
-//    val tfidfScore = SentimentAnalysis.getT(cleanTweets)
-//    println(tfidfScore.first())
+    //PartyPrediction
+
   }
 }
