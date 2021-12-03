@@ -1,6 +1,7 @@
 package utils
 
 import domain.Tweet
+import nlp.SentimentAnalysis
 import org.apache.spark.rdd.RDD
 import org.bson.Document
 
@@ -8,13 +9,13 @@ import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, OffsetDateTime}
 import java.util.Locale
-
 import scala.collection.JavaConverters._
 
 object TwitterUtils {
 
   def parseDocumentToTweet(rdd: RDD[Document]): RDD[Tweet] = {
-    rdd.map(entry =>
+    rdd.map(entry => {
+      val text = entry.get("text").asInstanceOf[String]
       Tweet(
         getLong(entry.get("id")).get,
         getTwitterDate(entry.get("createdDate").asInstanceOf[String]),
@@ -23,10 +24,11 @@ object TwitterUtils {
         entry.get("name").asInstanceOf[String],
         entry.get("party").asInstanceOf[String],
         entry.get("hashtags").asInstanceOf[java.util.List[String]].asScala.toList,
-        entry.get("text").asInstanceOf[String],
-        Nil //cleaned text can be set after preprocessing
+        text,
+        Nil,
+        SentimentAnalysis.detectSentiment(text)
       )
-    )
+    })
   }
 
   def getLong(number: Any): Option[Long] = number match {

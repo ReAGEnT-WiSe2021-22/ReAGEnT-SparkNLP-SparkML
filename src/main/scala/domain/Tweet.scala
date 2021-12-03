@@ -11,5 +11,6 @@ case class Tweet(
                   party:String,
                   hashtags:List[String],
                   text:String,
-                  cleanedText:List[String] = Nil
+                  cleanText:List[String],
+                  sentiment:Double
                 )

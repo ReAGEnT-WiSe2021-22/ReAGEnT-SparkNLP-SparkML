@@ -1,13 +1,16 @@
 package nlp
 
 import com.johnsnowlabs.nlp.annotator.{SentenceDetector, Tokenizer}
-import com.johnsnowlabs.nlp.annotators.{Lemmatizer, LemmatizerModel, Normalizer, StopWordsCleaner}
+import com.johnsnowlabs.nlp.annotators.{LemmatizerModel, Normalizer, StopWordsCleaner}
 import com.johnsnowlabs.nlp.base.{DocumentAssembler, Finisher}
-import domain.Tweet
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders}
 
+import utils.IOUtils
+import domain.Tweet
+
+//Preprocess the data for topic modelling
 class Preprocessing(data:DataFrame) {
 
   private val documentAssembler = new DocumentAssembler()
@@ -22,15 +25,15 @@ class Preprocessing(data:DataFrame) {
     .setInputCols("sentence")
     .setOutputCol("token")
 
-//  val stopwords = IOUtils.RDDFromFile("german_stopwords_short").collect
-//  private val stopwordCleaner = new StopWordsCleaner()
-//    .setInputCols("token")
-//    .setOutputCol("stopwordClean")
-//    .setStopWords(stopwords)
-//    .setCaseSensitive(false)
+  val stopwords = IOUtils.RDDFromFile("german_stopwords_short").collect
+  private val stopwordCleaner = new StopWordsCleaner()
+    .setInputCols("token")
+    .setOutputCol("stopwordClean")
+    .setStopWords(stopwords)
+    .setCaseSensitive(false)
 
   private val normalizer = new Normalizer()
-    .setInputCols("token")
+    .setInputCols("stopwordClean")
     .setOutputCol("normalized")
     //hexcode for german vowels: http://www.javascripter.net/faq/accentedcharacters.htm
     .setCleanupPatterns(Array("""[^a-zA-Z\xE4\xF6\xFC\xC4\xD6\xDC\xDF\s]""", "^http.*"))
@@ -39,11 +42,6 @@ class Preprocessing(data:DataFrame) {
   private val lemmatizer = LemmatizerModel.load("src/main/resources/lemma_dict_ger_johnsnowlabs")
     .setInputCols("normalized")
     .setOutputCol("lemmatized")
-
-  //TODO
-  // spell checker
-  // no pretrained spell checker found, or dictionary to train spell checker
-  private val spellChecker = null
 
   private val finisher = new Finisher()
     .setInputCols("lemmatized")
@@ -56,7 +54,7 @@ class Preprocessing(data:DataFrame) {
       documentAssembler,
       sentenceDetector,
       tokenizer,
-//      stopwordCleaner,
+      stopwordCleaner,
       normalizer,
       lemmatizer,
       finisher
@@ -68,6 +66,8 @@ class Preprocessing(data:DataFrame) {
     .transform(data)
 
   def getPipeline:Pipeline = pipeline
+
+  //if verbose: gives dataframe with intermediate results of the different cleaning steps
   def getResult(verbose:Boolean = false):DataFrame = {
     if(verbose) result
     else result
@@ -80,7 +80,8 @@ class Preprocessing(data:DataFrame) {
         "party",
         "hashtags",
         "text",
-        "cleanedText")
+        "cleanText",
+        "sentiment")
   }
 
 }

@@ -12,5 +12,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-mllib" % sparkVersion,
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
   "org.mongodb.spark" %% "mongo-spark-connector" % "3.0.1",
-  "com.johnsnowlabs.nlp" %% "spark-nlp" % "3.3.1"
+  "com.johnsnowlabs.nlp" %% "spark-nlp" % "3.3.1",
+  "edu.stanford.nlp" % "stanford-corenlp" % "4.3.2",
+  "edu.stanford.nlp" % "stanford-corenlp" % "4.3.2" classifier "models"
 )
