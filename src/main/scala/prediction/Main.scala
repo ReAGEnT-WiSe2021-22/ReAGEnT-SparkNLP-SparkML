@@ -2,7 +2,7 @@ package prediction
 
 import org.apache.spark.sql.SparkSession
 import com.mongodb.spark.MongoSpark
-
+import org.apache.spark.SparkContext
 import utils.IOUtils
 import utils.TwitterUtilities
 import org.apache.spark.rdd.RDD
@@ -41,6 +41,10 @@ object Main {
      */
 
     //For now, just use example_tweets
+
+    val ss:SparkSession= SparkSession.builder.appName("SparkLocal").
+      master("local[*]").getOrCreate
+    val sc: SparkContext = ss.sparkContext
 
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false)
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
