@@ -41,6 +41,14 @@ object TweetLoader {
   def getDate(document:Document):LocalDateTime = transformTwitterDate(document.getString("created_at"))
 
   /**
+   * @param text Unchanged tweet text
+   * @return text without stopwords
+   */
+  def removeStopWords(text:String):String = {
+    ???
+  }
+
+  /**
    * @param rdd RDD with loaded tweets
    * @return RDD with filtered attributes of the tweet (party, text, created_at) and the sentiment value
    */

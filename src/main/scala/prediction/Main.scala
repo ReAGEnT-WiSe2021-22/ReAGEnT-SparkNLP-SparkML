@@ -27,7 +27,7 @@ object Main {
     val sc = sparkSession.sparkContext
     val rdd = MongoSpark.load(sc).rdd //RDD[Document]
 
-    // Filter relevant attributes (party, text, created_at, sentiment_value)
+
     val trainingData = TweetLoader.prepareTweets(rdd)
 
 
