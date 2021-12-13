@@ -1,13 +1,33 @@
-[debug] Acquiring lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\project\target\.sbt-compilation-infos\reagent-api-wrapper-main-compile\.sbt-idea-lock ...
-[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:23: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
-[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
-[warn]                       ^
-[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:65: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
-[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
-[warn]                                                                 ^
-[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\TwitterConnectionImpl.scala:43:106: Unit does not take parameters
-[error]           case e: Exception => println("Connection lost . . . leaving wrapper"); ReAGEnT_API_Wrapper.stop()
-[error]                                                                                                          ^
-[warn] two warnings found
-[error] one error found
-[debug] Releasing lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\project\target\.sbt-compilation-infos\reagent-api-wrapper-main-compile\.sbt-idea-lock.
+[debug] Acquiring lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\project\target\.sbt-compilation-infos\reagent-sparknlp-sparkml-compile\.sbt-idea-lock ...
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoForEachWriter.scala:8:8: not found: object twitter
+[error] import twitter.MyTweet
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoForEachWriter.scala:29:25: not found: value MyTweet
+[error]             val tweet = MyTweet.createTweetFromRow(row)
+[error]                         ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:12:8: not found: object parser
+[error] import parser.{Converter, TweetLast}
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:16:36: not found: type Converter
+[error] class MongoUpdateWriter(converter: Converter, dbName: String, collection: String, user: String, pwd: String) extends ForeachWriter[Row] {
+[error]                                    ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:30:35: not found: value TweetLast
+[error]           var current: Document = TweetLast("combined", new util.ArrayList[String]()).toDocument
+[error]                                   ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:46:13: not found: value TweetLast
+[error]             TweetLast(current.get("_id").toString, currentTweets).toDocument,
+[error]             ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:56:35: not found: value TweetLast
+[error]           var current: Document = TweetLast(converter.rowToParser(value).toDocument.get("_id").toString, new util.ArrayList[String]()).toDocument
+[error]                                   ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:73:13: not found: value TweetLast
+[error]             TweetLast(current.get("_id").toString, currentTweets).toDocument,
+[error]             ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpsertWriter.scala:3:8: not found: object parser
+[error] import parser.Converter
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpsertWriter.scala:14:36: not found: type Converter
+[error] class MongoUpsertWriter(converter: Converter, dbName:String, collection: String, user:String, pwd: String) extends ForeachWriter[Row] {
+[error]                                    ^
+[error] 10 errors found
+[debug] Releasing lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\project\target\.sbt-compilation-infos\reagent-sparknlp-sparkml-compile\.sbt-idea-lock.
