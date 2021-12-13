@@ -1,2 +1,5 @@
 .idea/
 /target/
+/edu/
+/project/target/
+/project/project/
