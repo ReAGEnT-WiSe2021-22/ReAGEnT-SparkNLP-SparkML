@@ -1,4 +1,4 @@
-name := "ReAGEnT-API-Wrapper"
+name := "ReAGEnT-SparkNLP-SparkML"
 
 version := "0.1"
 
@@ -11,6 +11,9 @@ libraryDependencies ++= Seq(
 	"org.apache.spark" %% "spark-streaming" % SparkVersion,
 	"org.apache.spark" %% "spark-sql" % SparkVersion,
 	"org.apache.spark" %% "spark-catalyst" % SparkVersion,
+	//ML Lib added
+	"org.apache.spark" %% "spark-mllib" % SparkVersion,
+
 	// MongoDB-Spark-Connector
 	"org.mongodb.spark" %% "mongo-spark-connector" % "2.4.3",
 	//	"org.reactivemongo" %% "reactivemongo" % "1.0.3",
