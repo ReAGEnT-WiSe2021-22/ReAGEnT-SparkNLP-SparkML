@@ -7,8 +7,8 @@ import java.time.LocalDateTime
  * @param party party that was mentioned in the tweet
  * @param text text of the tweet (unchanged)
  * @param date date when tweet was created at
- * @param Sentiment sentiment value of the tweet text
+ * @param sentiment sentiment value of the tweet text
  */
-class TrainingTweet(party:String, text:String, date:LocalDateTime, Sentiment:Double) {
+case class TrainingTweet(party:String, text:String, date:LocalDateTime, sentiment:Double) {
 
 }

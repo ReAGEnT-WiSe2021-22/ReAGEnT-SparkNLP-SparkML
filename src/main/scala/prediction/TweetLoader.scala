@@ -7,21 +7,20 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import utils.SentimentAnalysisUtils
-//import com.johnsnowlabs.nlp.annotators.StopWordsCleaner
 
 
 /**
- *
+ * Class that provides methods to filter needed attributes from tweets and create a RDD with TrainingTweet-objects
  */
 object TweetLoader {
-  val dtf_new:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
+  val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.splitAt(19)._1, dtf_new)
+  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.splitAt(19)._1, dtf)
 
   /**
    * @param document Tweet
@@ -46,6 +45,7 @@ object TweetLoader {
    * @return text without stopwords
    */
   def removeStopWords(text:String):String = {
+    //TODO Will be done maybe later
     ???
   }
 
