@@ -1,0 +1,13 @@
+[debug] Acquiring lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\project\target\.sbt-compilation-infos\reagent-api-wrapper-main-compile\.sbt-idea-lock ...
+[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:23: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
+[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
+[warn]                       ^
+[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:65: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
+[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
+[warn]                                                                 ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\TwitterConnectionImpl.scala:43:106: Unit does not take parameters
+[error]           case e: Exception => println("Connection lost . . . leaving wrapper"); ReAGEnT_API_Wrapper.stop()
+[error]                                                                                                          ^
+[warn] two warnings found
+[error] one error found
+[debug] Releasing lock on file C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\project\target\.sbt-compilation-infos\reagent-api-wrapper-main-compile\.sbt-idea-lock.
