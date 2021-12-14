@@ -13,7 +13,6 @@ libraryDependencies ++= Seq(
 	"org.apache.spark" %% "spark-catalyst" % SparkVersion,
 	//ML Lib added
 	"org.apache.spark" %% "spark-mllib" % SparkVersion,
-
 	// MongoDB-Spark-Connector
 	"org.mongodb.spark" %% "mongo-spark-connector" % "2.4.3",
 	//	"org.reactivemongo" %% "reactivemongo" % "1.0.3",

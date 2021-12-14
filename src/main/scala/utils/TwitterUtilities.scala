@@ -80,12 +80,12 @@ object TwitterUtilities {
     case _ => None
   }
 
-  val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")
+  val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.splitAt(19)._1, dtf)
+  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.take(19), dtf)
 }
