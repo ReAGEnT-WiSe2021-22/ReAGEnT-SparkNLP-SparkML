@@ -56,8 +56,8 @@ object Main {
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
     println("parsed")
 
-    val tweet = trainingData.first() //GC overhead limit exceeded
-    println(tweet)
+    //val tweet = trainingData.first() //GC overhead limit exceeded
+    //println(tweet)
 
     //TODO: Training
 
