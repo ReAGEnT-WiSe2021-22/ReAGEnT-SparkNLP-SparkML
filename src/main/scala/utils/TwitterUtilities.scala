@@ -32,7 +32,7 @@ object TwitterUtilities {
         map.get("id") match {
           case Some(_) => {
 
-            val date = map.get("created_at") match {
+            val date = map.get("date") match {
               case Some(txt:String) => this.transformTwitterDate(txt)
               case _ => null
             }
@@ -81,5 +81,5 @@ object TwitterUtilities {
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(10), dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date, dtf)
 }

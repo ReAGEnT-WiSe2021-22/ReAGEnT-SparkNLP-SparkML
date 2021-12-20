@@ -56,13 +56,15 @@ object Main {
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
     println("File read")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
-    println("parsed")
+    println("Parsed")
 
     val tweet = trainingData.first()
-    println("First tweet ", tweet)
+    println("First tweet: \n", tweet)
 
-    //val train = new Training(trainingData)
-    //plotData()
+    val train = new Training(trainingData)
+    train.printData(train.Data_FDP)
+    train.plotData(train.Data_FDP)
+
 
     //TODO: Training
 

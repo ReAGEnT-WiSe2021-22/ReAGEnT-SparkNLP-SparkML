@@ -2,11 +2,10 @@ package prediction
 
 import java.time.LocalDate
 
-
 /**
  * Model of tweet that will be used for Training
  * @param party party that was mentioned in the tweet
- * @param text text of the tweet (unchanged)
+ * @param text text of the tweet (unchanged) (maybe the text can be removed later, since it´s not used)
  * @param date date when tweet was created at
  * @param sentiment sentiment value of the tweet text
  */
