@@ -8,14 +8,21 @@ import breeze.linalg._
 class Training(data:RDD[TrainingTweet]) {
 
 
-  def plotting():Unit = {
+  def plotData():Unit = {
+    //val sorted = data.sortBy(x => x.date.toEpochDay).cache()
+    //val dates = sorted.map(x => x.date.toEpochDay.toDouble).collect()
+    //val sentiments = sorted.map(x => x.sentiment).collect()
+
+    //val x = new DenseVector[Double](dates)
+    //val y = new DenseVector[Double](sentiments)
+
     val f = Figure()
     val p = f.subplot(0)
-    val x = linspace(0.0,1.0)
-    p += plot(x, x ^:^ 2.0)
-    p += plot(x, x ^:^ 3.0, '.')
-    p.xlabel = "x axis"
-    p.ylabel = "y axis"
+
+    //p += plot(x, y)
+
+    p.xlabel = "Dates"
+    p.ylabel = "Sentiments"
   }
 
 }

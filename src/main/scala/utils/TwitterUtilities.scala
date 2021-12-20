@@ -1,10 +1,12 @@
 package utils
 
-import java.time.{Instant, LocalDateTime, OffsetDateTime}
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.sql.Timestamp
 import prediction.TrainingTweet
+
+import scala.util.Random
 
 
 object TwitterUtilities {
@@ -40,12 +42,13 @@ object TwitterUtilities {
               case _ => ""
             }
 
-            val partei = map.get("partei") match {
+            val party = map.get("partei") match {
               case Some(txt:String) => txt
               case _ => "Parteilos"
             }
 
-            val tweet_ = new TrainingTweet(partei, text, date, SentimentAnalysisUtils.detectSentiment(text))
+            val randgen= new Random()
+            val tweet_ = TrainingTweet(party, text, date, randgen.nextDouble()*5.0 ) //Random values instead of sentiments
 
             Option(tweet_)
           }

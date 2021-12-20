@@ -3,9 +3,10 @@ package prediction
 import org.apache.spark.sql.SparkSession
 import com.mongodb.spark.MongoSpark
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.IOUtils
-import utils.TwitterUtilities
+import utils.{IOUtils, JSONUtils, SentimentAnalysisUtils, Sentiments, TwitterUtilities}
 import org.apache.spark.rdd.RDD
+import edu.stanford.nlp.pipeline.StanfordCoreNLP
+
 
 /**
  * At first political tweets from 2021 will be loaded from the database
@@ -15,10 +16,8 @@ object Main {
 
   def main(args: Array[String]):Unit = {
 
-
     /*
     Will be used later
-
 
     // Create Sparksession
     val sparkSession = SparkSession.builder()
@@ -51,13 +50,19 @@ object Main {
     val sc: SparkContext = ss.sparkContext
 
 
+    // Message: Exception in thread "sbt-bg-threads-1" java.lang.OutOfMemoryError: GC overhead limit exceeded
+    // val sentimentUtil = new SentimentAnalysisUtils() GC overhead limit exceeded
+
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
     println("File read")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
     println("parsed")
 
-    //val tweet = trainingData.first() //GC overhead limit exceeded
-    //println(tweet)
+    val tweet = trainingData.first()
+    println("First tweet ", tweet)
+
+    //val train = new Training(trainingData)
+    //plotData()
 
     //TODO: Training
 
@@ -67,3 +72,5 @@ object Main {
     println("Goodbye")
   }
 }
+
+//TODO: TweetLoaderTest

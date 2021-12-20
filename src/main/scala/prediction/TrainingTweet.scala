@@ -11,11 +11,10 @@ import java.time.LocalDateTime
  */
 case class TrainingTweet(party:String, text:String, date:LocalDateTime, sentiment:Double) {
 
-  override def toString():String = {
+  override def toString:String = {
     "party: " + party + sys.props("line.separator") +
     "text: " + text + sys.props("line.separator") +
-    "date: " + date.toString + sys.props("line.separator")
+    "date: " + date.toString + sys.props("line.separator") +
     "sentiment: " + sentiment + sys.props("line.separator")
   }
-
 }

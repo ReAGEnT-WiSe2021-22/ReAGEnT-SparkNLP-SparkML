@@ -5,8 +5,9 @@ import org.bson.Document
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
 import utils.SentimentAnalysisUtils
+
+import scala.util.Random
 
 
 /**
@@ -14,6 +15,8 @@ import utils.SentimentAnalysisUtils
  */
 object TweetLoader {
   val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
+
+  val sentimentUtil = new SentimentAnalysisUtils()
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
@@ -58,9 +61,11 @@ object TweetLoader {
   def prepareTweets(rdd:RDD[Document]):RDD[TrainingTweet] = {
     rdd.map( x => {
       val text = getText(x)
-      val sentiment = SentimentAnalysisUtils.detectSentiment(text)
+      //val sentiment = sentimentUtil.detectSentiment(text)
+      val randgen= new Random()
+      val sentiment = randgen.nextDouble()*5.0 //random instead of sentiments (for now)
 
-      new TrainingTweet(getParty(x), text, getDate(x), sentiment)
+      TrainingTweet(getParty(x), text, getDate(x), sentiment)
     } )
   }
 

@@ -10,7 +10,7 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
-object SentimentAnalysisUtils {
+class SentimentAnalysisUtils {
 
   val nlpProps: Properties = {
     val props = new Properties()
@@ -25,9 +25,13 @@ object SentimentAnalysisUtils {
     prop
   }
 
+  val pipeline = new StanfordCoreNLP(nlpPropsGerman)
+
   def detectSentiment(message: String): Double = {
 
-    val pipeline = new StanfordCoreNLP(nlpPropsGerman)
+    //val pipeline = new StanfordCoreNLP(nlpPropsGerman) //Create object for each detection :/
+    // --> Observer pattern?
+    // --> One object as class object?
 
     val annotation = pipeline.process(message)
     var sentiments: ListBuffer[Double] = ListBuffer()
@@ -55,14 +59,14 @@ object SentimentAnalysisUtils {
     }
 
     val averageSentiment: Double = {
-      if (sentiments.size > 0) sentiments.sum / sentiments.size
+      if (sentiments.nonEmpty) sentiments.sum / sentiments.size
       else -1
     }
 
     val weightedSentiments = (sentiments, sizes).zipped.map((sentiment, size) => sentiment * size)
-    var weightedSentiment = weightedSentiments.sum / (sizes.fold(0)(_ + _))
+    var weightedSentiment = weightedSentiments.sum / sizes.sum
 
-    if (sentiments.size == 0) {
+    if (sentiments.isEmpty) {
       mainSentiment = -1
       weightedSentiment = -1
     }
