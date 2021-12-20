@@ -5,10 +5,12 @@ import org.apache.spark.rdd.RDD
 import breeze.plot._
 import breeze.linalg._
 
+import org.jfree.data.statistics.Regression
+
 class Training(data:RDD[TrainingTweet]) {
 
 
-  def plotData():Unit = {
+  def plotData0():Unit = {
     //val sorted = data.sortBy(x => x.date.toEpochDay).cache()
     //val dates = sorted.map(x => x.date.toEpochDay.toDouble).collect()
     //val sentiments = sorted.map(x => x.sentiment).collect()
@@ -23,6 +25,11 @@ class Training(data:RDD[TrainingTweet]) {
 
     p.xlabel = "Dates"
     p.ylabel = "Sentiments"
+  }
+
+
+  def plotData():Unit = {
+
   }
 
 }

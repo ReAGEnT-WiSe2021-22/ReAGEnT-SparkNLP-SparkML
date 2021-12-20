@@ -1,6 +1,6 @@
 package utils
 
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.sql.Timestamp
@@ -58,6 +58,7 @@ object TwitterUtilities {
       case None => None
     }
   }
+
   /*
 
   Example Tweet:
@@ -73,22 +74,12 @@ object TwitterUtilities {
     "retweet_date":"","translate":"","trans_src":"","trans_dest":"","partei":"CDU"}
    */
 
-  /*
-    Helper Method for specific Data Types
-   */
-  def getNumber(map:Map[String,Any], key:String):Option[Long]= map.get(key) match {
-
-    case Some(i:Int) => Some(i.toLong)
-    case Some(l:Long) => Some(l)
-    case _ => None
-  }
-
-  val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+  val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.take(19), dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(10), dtf)
 }

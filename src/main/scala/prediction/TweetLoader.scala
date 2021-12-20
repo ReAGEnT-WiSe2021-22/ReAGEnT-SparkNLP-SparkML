@@ -3,7 +3,7 @@ package prediction
 import org.apache.spark.rdd.RDD
 import org.bson.Document
 
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import utils.SentimentAnalysisUtils
 
@@ -14,7 +14,7 @@ import scala.util.Random
  * Class that provides methods to filter needed attributes from tweets and create a RDD with TrainingTweet-objects
  */
 object TweetLoader {
-  val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
+  val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd")
 
   val sentimentUtil = new SentimentAnalysisUtils()
 
@@ -23,7 +23,7 @@ object TweetLoader {
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDateTime = LocalDateTime.parse(date.take(19), dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(19), dtf)
 
   /**
    * @param document Tweet
@@ -41,7 +41,7 @@ object TweetLoader {
    * @param document Tweet
    * @return Date when tweet was created
    */
-  def getDate(document:Document):LocalDateTime = transformTwitterDate(document.getString("created_at"))
+  def getDate(document:Document):LocalDate = transformTwitterDate(document.getString("created_at"))
 
   /**
    * @param text Unchanged tweet text
