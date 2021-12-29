@@ -1,6 +1,6 @@
 package prediction
 
-import java.time.LocalDate
+import java.sql.Date
 
 /**
  * Model of tweet that will be used for Training
@@ -9,7 +9,7 @@ import java.time.LocalDate
  * @param date date when tweet was created at
  * @param sentiment sentiment value of the tweet text
  */
-case class TrainingTweet(party:String, text:String, date:LocalDate, sentiment:Double) {
+case class TrainingTweet(party:String, text:String, date:Date, sentiment:Double) {
 
   override def toString:String = {
     "party: " + party + sys.props("line.separator") +

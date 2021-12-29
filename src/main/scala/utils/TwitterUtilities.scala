@@ -3,7 +3,7 @@ package utils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import prediction.TrainingTweet
 
 import scala.util.Random
@@ -48,7 +48,7 @@ object TwitterUtilities {
             }
 
             val randgen= new Random()
-            val tweet_ = TrainingTweet(party, text, date, randgen.nextDouble()*5.0 ) //Random values instead of sentiments
+            val tweet_ = TrainingTweet(party, text, Date.valueOf(date), randgen.nextDouble()*5.0 ) //TODO Random values instead of sentiments
 
             Option(tweet_)
           }

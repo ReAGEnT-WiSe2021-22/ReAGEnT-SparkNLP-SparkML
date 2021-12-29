@@ -1,11 +1,13 @@
 package prediction
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Encoders, SparkSession}
 import com.mongodb.spark.MongoSpark
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{IOUtils, JSONUtils, SentimentAnalysisUtils, Sentiments, TwitterUtilities}
 import org.apache.spark.rdd.RDD
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.sql.functions.dayofyear
 
 
 /**
@@ -47,7 +49,7 @@ object Main {
 
     val ss:SparkSession= SparkSession.builder.appName("SparkLocal").
       master("local[*]").config(conf).getOrCreate
-    val sc: SparkContext = ss.sparkContext
+    val sc:SparkContext = ss.sparkContext
 
 
     // Message: Exception in thread "sbt-bg-threads-1" java.lang.OutOfMemoryError: GC overhead limit exceeded
@@ -61,17 +63,31 @@ object Main {
     val tweet = trainingData.first()
     println("First tweet: \n", tweet)
 
-    val train = new Training(trainingData)
-    train.printData(train.Data_FDP)
-    train.plotData(train.Data_FDP)
+    val train = new Training(trainingData, ss)
+    //train.printData(train.data_FDP)
+    //train.plotData(train.data_FDP)
 
-
+    println("--- Training ---")
+    train.trainLinearRegression(train.data_FDP)
+    train.plotData(train.data_FDP)
     //TODO: Training
 
 
     // If 'Goodbye' was printed, the programm had finished successfully
     ss.stop()
     println("Goodbye")
+
+/*
+    val data2017 = ss.read.schema(Encoders.product[TrainingTweet].schema).
+      option("dateFormat", "yyyyMMdd").csv("data/2017.csv")
+
+    val df = ss.createDataFrame(trainingData)
+
+    val withDOYinfo = df.withColumn("doy", dayofyear('date))
+    val linearRegData = new VectorAssembler().setInputCols(Array("doySin", "doyCos")).
+      setOutputCol("doyTrig").transform(withDOYinfo).cache()
+
+ */
   }
 }
 

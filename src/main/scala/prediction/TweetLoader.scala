@@ -7,6 +7,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import utils.SentimentAnalysisUtils
 
+import java.sql.Date
 import scala.util.Random
 
 
@@ -41,7 +42,10 @@ object TweetLoader {
    * @param document Tweet
    * @return Date when tweet was created
    */
-  def getDate(document:Document):LocalDate = transformTwitterDate(document.getString("created_at"))
+  def getDate(document:Document):Date = {
+    val localDate = transformTwitterDate(document.getString("created_at"))
+    Date.valueOf(localDate)
+  }
 
   /**
    * @param text Unchanged tweet text
@@ -63,7 +67,7 @@ object TweetLoader {
       val text = getText(x)
       //val sentiment = sentimentUtil.detectSentiment(text)
       val randgen= new Random()
-      val sentiment = randgen.nextDouble()*5.0 //random instead of sentiments (for now)
+      val sentiment = randgen.nextDouble()*5.0 //TODO random instead of sentiments (for now)
 
       TrainingTweet(getParty(x), text, getDate(x), sentiment)
     } )
