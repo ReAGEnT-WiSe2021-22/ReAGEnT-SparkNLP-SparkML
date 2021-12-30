@@ -2,14 +2,16 @@ package prediction
 
 import org.apache.spark.ml
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.feature.{StandardScaler, VectorAssembler}
 import org.apache.spark.ml.regression.LinearRegression
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.jfree.data.xy.DefaultXYDataset
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart, plot}
 import org.jfree.chart.plot.PlotOrientation
 
+import java.time.LocalDate
 import javax.swing.{JFrame, WindowConstants}
 
 class Training(data:RDD[TrainingTweet], ss:SparkSession) {
@@ -46,6 +48,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
       .map(tweetsWithSameCreationDate => {
         val head = tweetsWithSameCreationDate._2.head
         val sentiments = tweetsWithSameCreationDate._2.map(_.sentiment)
+        //save tweet with average sentiment value per day
         TrainingTweet(head.party, head.text, head.date, sentiments.sum/sentiments.size)
       })
       .sortBy(x => x.date.toLocalDate.toEpochDay)
@@ -101,37 +104,48 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
 
   def trainLinearRegression(rdd:RDD[TrainingTweet]):Unit = {
-    val features = rdd.map(x => (x.date.toLocalDate.toEpochDay, x.sentiment))
-    val df = ss.createDataFrame(features).cache()
+    val relevantData = rdd.map(x => (x.date.toLocalDate.toEpochDay, x.sentiment)) // (Long, Double)
+
+    val df = ss.createDataFrame(relevantData)
+      .withColumnRenamed("_1", "features")
+      .withColumnRenamed("_2", "labels")
+      .cache()
 
     df.columns.foreach(println)
-    // columns : "party", "text", "date", "sentiment"
-    // columns : "_1", "_2"
 
-    val modelData = new VectorAssembler()
-      .setInputCols(Array("_1"))
-      .setOutputCol("features")
+
+    val transformedData = new VectorAssembler()
+      .setInputCols(Array("features"))
+      .setOutputCol("output")
       .transform(df)
       .cache()
 
+
+    val scaledData = new StandardScaler()
+      .setInputCol("output")
+      .setOutputCol("scaled_features")
+      .fit(transformedData)
+      .transform(transformedData)
+      .cache()
+
+    println("Scaled: ")
+    scaledData.select("scaled_features").collect().foreach(println)
+
     /*
     TODO
-    - Feature Scaling?
-    - Passen die Columns?
-    - Rename die columns (nicht _1 & _2)
-    - Formel wählen für das Training, z. B. y = x^3+x
     - Passenden Algorithmus wählen
+    - Formel wählen für das Training, z. B. y = x^3+x^2+x+c
     */
 
 
     val lr = new LinearRegression()
-      .setFeaturesCol("features")
-      .setLabelCol("_2")
-      .setMaxIter(10)
+      .setFeaturesCol("output")
+      .setLabelCol("labels")
 
-    val model = lr.fit(modelData)
+    val model = lr.fit(transformedData)
 
     println(model.coefficients + "  ---  " + model.intercept)
+
   }
 
 
