@@ -4,8 +4,7 @@ import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.feature.{StandardScaler, VectorAssembler}
 import org.apache.spark.ml.regression.LinearRegression
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{Column, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.jfree.data.xy.DefaultXYDataset
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.chart.plot.PlotOrientation
@@ -61,9 +60,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
   /**
    * Shows a line graph with sentiment values (y axix) depending on a specific date (x axis)
    */
-  def plotData(rdd:RDD[TrainingTweet]):Unit = {
-    val sentiments = Training.getSentiments(rdd)
-    val dates = Training.getDates(rdd)
+  def plotData(dates:Array[Double], sentiments:Array[Double], title:String):JFrame = {
     val dataArray = Array.ofDim[Double](2, sentiments.length)
 
     dataArray(0) = dates      // x values
@@ -71,7 +68,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
     val dataset = new DefaultXYDataset
     dataset.addSeries("Training Data", dataArray)
-    val plotTitle = "Training Data"
+    val plotTitle = title
     val xaxis = "dates"
     val yaxis = "sentiments"
     val orientation = PlotOrientation.VERTICAL
@@ -88,14 +85,21 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
     frame.pack()
     frame.setVisible(true)
 
-    println("Please press enter....")
-    System.in.read()
-    frame.setVisible(false)
-    frame.dispose()
+    //println("Please press enter....")
+    //System.in.read()
+    //frame.setVisible(false)
+    //frame.dispose()
+
+    frame
   }
 
-
-  def trainLinearRegression(rdd:RDD[TrainingTweet]):Unit = {
+  /**
+   *  columns of returning dataframe: features, dateformats, sentiments, transformed_features, prediction
+   *
+   * @param rdd TrainingData
+   * @return ...
+   */
+  def trainModel(rdd:RDD[TrainingTweet]):DataFrame = {
 
     val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment)) // (Double, LocalDate, Double)
 
@@ -112,22 +116,6 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
       .transform(df)
       .cache()
 
-    /*
-    val scaledData = new StandardScaler()
-      .setInputCol("transformed_features")
-      .setOutputCol("scaled_features")
-      .fit(transformedData)
-      .transform(transformedData)
-      .cache()
-
-     */
-
-    println("Scaled: ")
-    transformedData.columns.foreach(println)
-    transformedData.collect().foreach(println)
-
-
-
     val lr = new LinearRegression()
       .setFeaturesCol("transformed_features")
       .setLabelCol("sentiments")
@@ -136,7 +124,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
     println(model.coefficients + "  ---  " + model.intercept)
 
-    val result = model.transform(transformedData)
+    model.transform(transformedData)
   }
 }
 

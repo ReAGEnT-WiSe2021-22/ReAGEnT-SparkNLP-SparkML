@@ -3,11 +3,8 @@ package prediction
 import org.apache.spark.sql.{Encoders, SparkSession}
 import com.mongodb.spark.MongoSpark
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.{IOUtils, JSONUtils, SentimentAnalysisUtils, TwitterUtilities}
+import utils.{IOUtils, TwitterUtilities}
 import org.apache.spark.rdd.RDD
-import edu.stanford.nlp.pipeline.StanfordCoreNLP
-import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.sql.functions.dayofyear
 
 
 /**
@@ -59,21 +56,32 @@ object Main {
 
 
     val train = new Training(trainingData, ss)
-    //train.printData(train.data_FDP)
-    //train.plotData(train.data_FDP)
+
+    val dates = Training.getDates(train.data_FDP)
+    val sentiments = Training.getSentiments(train.data_FDP)
+    val frame = train.plotData(dates, sentiments, "Raw Data")
+
 
     println("--- Training ---")
-    train.trainLinearRegression(train.data_FDP)
-    train.plotData(train.data_FDP)
+    val model = train.trainModel(train.data_FDP).cache()
 
 
-    // TODO: Training
+    val prediction = model.collect().map(x => x.get(4).asInstanceOf[Double])
+
+    val frame2 = train.plotData(dates, prediction, "Prediction")
 
 
-    // If 'Goodbye' was printed, the programm had finished successfully
+    println("Please press enter....")
+    System.in.read()
+
+    frame.setVisible(false)
+    frame.dispose()
+    frame2.setVisible(false)
+    frame2.dispose()
+
     ss.stop()
+    // If 'Goodbye' was printed, the programm had finished successfully
     println("Goodbye")
-
   }
 }
 
