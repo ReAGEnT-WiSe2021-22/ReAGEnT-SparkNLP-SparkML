@@ -52,6 +52,7 @@ object TweetLoader {
    */
   def removeStopWords(text:String):String = {
     //TODO Will be done maybe later
+    //See spark-ml StopWordsRemover
     ???
   }
 

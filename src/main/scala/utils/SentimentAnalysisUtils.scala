@@ -29,10 +29,6 @@ object SentimentAnalysisUtils  {
 
   def detectSentiment(message: String): Double = {
 
-    //val pipeline = new StanfordCoreNLP(nlpPropsGerman) //Create object for each detection :/
-    // --> Observer pattern?
-    // --> One object as class object?
-
     val annotation = pipeline.process(message)
     var sentiments: ListBuffer[Double] = ListBuffer()
     var sizes: ListBuffer[Int] = ListBuffer()
