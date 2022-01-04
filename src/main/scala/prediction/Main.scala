@@ -60,8 +60,6 @@ object Main {
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
     println("Parsed")
 
-    val tweet = trainingData.first()
-    println("First tweet: \n", tweet)
 
     val train = new Training(trainingData, ss)
     //train.printData(train.data_FDP)
@@ -70,25 +68,16 @@ object Main {
     println("--- Training ---")
     train.trainLinearRegression(train.data_FDP)
     train.plotData(train.data_FDP)
-    //TODO: Training
+
+
+    // TODO: Training
 
 
     // If 'Goodbye' was printed, the programm had finished successfully
     ss.stop()
     println("Goodbye")
 
-/*
-    val data2017 = ss.read.schema(Encoders.product[TrainingTweet].schema).
-      option("dateFormat", "yyyyMMdd").csv("data/2017.csv")
-
-    val df = ss.createDataFrame(trainingData)
-
-    val withDOYinfo = df.withColumn("doy", dayofyear('date))
-    val linearRegData = new VectorAssembler().setInputCols(Array("doySin", "doyCos")).
-      setOutputCol("doyTrig").transform(withDOYinfo).cache()
-
- */
   }
 }
 
-//TODO: TweetLoaderTest
+// TODO: TweetLoaderTest

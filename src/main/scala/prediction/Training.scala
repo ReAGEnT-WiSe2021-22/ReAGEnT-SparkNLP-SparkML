@@ -113,39 +113,70 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
     df.columns.foreach(println)
 
-
+    //Hier noch Komplexität überarbeiten
+    // TODO Formel wählen für das Training, z. B. y = x^3+x^2+x+c
     val transformedData = new VectorAssembler()
       .setInputCols(Array("features"))
-      .setOutputCol("output")
+      .setOutputCol("transformed_features")
       .transform(df)
       .cache()
 
-
     val scaledData = new StandardScaler()
-      .setInputCol("output")
+      .setInputCol("transformed_features")
       .setOutputCol("scaled_features")
       .fit(transformedData)
       .transform(transformedData)
       .cache()
 
-    println("Scaled: ")
-    scaledData.select("scaled_features").collect().foreach(println)
 
-    /*
-    TODO
-    - Passenden Algorithmus wählen
-    - Formel wählen für das Training, z. B. y = x^3+x^2+x+c
-    */
-
+    println("Tranformed:  ")
+    scaledData.columns.foreach(println)
+    scaledData.collect().foreach(println)
 
     val lr = new LinearRegression()
-      .setFeaturesCol("output")
+      .setFeaturesCol("scaled_features")
       .setLabelCol("labels")
 
-    val model = lr.fit(transformedData)
+    val model = lr.fit(scaledData)
 
     println(model.coefficients + "  ---  " + model.intercept)
 
+    val fittedModel = model.transform(scaledData)
+    //columns: features, labels, output, prediction
+
+/*
+
+    val ar = fittedModel.collect()
+    val ar1 = ar.map(x => x.get(1).asInstanceOf[Double])
+    val ar2 = ar.map(x => x.get(3).asInstanceOf[Double])
+
+    val dataArray = Array(ar2, ar1)
+
+    val dataset = new DefaultXYDataset
+    dataset.addSeries("Training Data", dataArray)
+    val plotTitle = "Training Data"
+    val xaxis = "dates"
+    val yaxis = "sentiments"
+    val orientation = PlotOrientation.VERTICAL
+    val show  = false
+    val toolTips = false
+    val urls = false
+    val chart:JFreeChart= ChartFactory.createXYLineChart( plotTitle, xaxis, yaxis,
+      dataset, orientation, show, toolTips, urls)
+
+    val frame:JFrame = new JFrame("Modelergebnis")
+    frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
+    val chartPanel: ChartPanel = new ChartPanel(chart)
+    frame.setContentPane(chartPanel)
+    frame.pack()
+    frame.setVisible(true)
+
+    println("Please press enter....")
+    System.in.read()
+    frame.setVisible(false)
+    frame.dispose()
+
+ */
   }
 
 
