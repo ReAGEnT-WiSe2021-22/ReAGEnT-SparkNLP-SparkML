@@ -3,7 +3,7 @@ package prediction
 import org.apache.spark.sql.{Encoders, SparkSession}
 import com.mongodb.spark.MongoSpark
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.{IOUtils, JSONUtils, SentimentAnalysisUtils, Sentiments, TwitterUtilities}
+import utils.{IOUtils, JSONUtils, SentimentAnalysisUtils, TwitterUtilities}
 import org.apache.spark.rdd.RDD
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import org.apache.spark.ml.feature.VectorAssembler
@@ -52,12 +52,9 @@ object Main {
     val sc:SparkContext = ss.sparkContext
 
 
-    // Message: Exception in thread "sbt-bg-threads-1" java.lang.OutOfMemoryError: GC overhead limit exceeded
-    // val sentimentUtil = new SentimentAnalysisUtils() GC overhead limit exceeded
-
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
     println("File read")
-    val trainingData:RDD[TrainingTweet] = twitterData.flatMap(TwitterUtilities.parse).cache()
+    val trainingData:RDD[TrainingTweet] = twitterData.flatMap( TwitterUtilities.parse ).cache()
     println("Parsed")
 
 

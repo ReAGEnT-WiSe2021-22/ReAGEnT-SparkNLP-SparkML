@@ -10,7 +10,7 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
-class SentimentAnalysisUtils {
+object SentimentAnalysisUtils  {
 
   val nlpProps: Properties = {
     val props = new Properties()

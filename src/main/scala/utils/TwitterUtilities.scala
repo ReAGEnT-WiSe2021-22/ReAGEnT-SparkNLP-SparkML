@@ -48,7 +48,7 @@ object TwitterUtilities {
             }
 
             val randgen= new Random()
-            val tweet_ = TrainingTweet(party, text, Date.valueOf(date), randgen.nextDouble()*5.0 ) //TODO Random values instead of sentiments
+            val tweet_ = TrainingTweet(party, text, Date.valueOf(date), SentimentAnalysisUtils.detectSentiment(text) )
 
             Option(tweet_)
           }
