@@ -57,23 +57,24 @@ object Main {
 
     val train = new Training(trainingData, ss)
 
-    val dates = Training.getDates(train.data_FDP)
-    val sentiments = Training.getSentiments(train.data_FDP)
-    val rawData_frame = train.plotData(dates, sentiments, "Raw Data")
+    val rdd = train.data_CDU
+
+    val dates = Training.getDates(rdd)
+    val sentiments = Training.getSentiments(rdd)
 
 
     println("--- Training ---")
-    val model = train.trainModel(train.data_FDP).cache()
+    val model = train.trainModel(rdd).cache()
 
-    // TODO Validation
     // TODO Future Prediction with Live Data
     // TODO Write to MongoDB
 
 
     // --- Visualization --- //
 
-    val prediction = model.collect().map(x => x.get(4).asInstanceOf[Double])
+    val prediction = model.collect().map(x => x.get(6).asInstanceOf[Double])
 
+    val rawData_frame = train.plotData(dates, sentiments, "Raw Data")
     val prediction_frame = train.plotData(dates, prediction, "Prediction")
 
 

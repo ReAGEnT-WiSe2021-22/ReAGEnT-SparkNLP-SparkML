@@ -1,10 +1,13 @@
 package prediction
 
-import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.regression.LinearRegression
+import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.functions.{col, lit, udf}
+import org.apache.spark.sql.{DataFrame, SparkSession, functions}
 import org.jfree.data.xy.DefaultXYDataset
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.chart.plot.PlotOrientation
@@ -12,12 +15,11 @@ import org.jfree.chart.plot.PlotOrientation
 import javax.swing.{JFrame, WindowConstants}
 
 /**
- * Use the Spark-ML pipeline for Training
+ * Use the Spark-ML pipeline for training
  * See for more information: https://spark.apache.org/docs/latest/ml-pipeline.html
  * @param data Raw data for Training saved as RDD
  * @param ss SparkSession-object
  */
-
 class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
   /*
@@ -52,7 +54,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
         val head = tweetsWithSameCreationDate._2.head
         val sentiments = tweetsWithSameCreationDate._2.map(_.sentiment)
         //save tweet with average sentiment value per day
-        TrainingTweet(head.party, head.text, head.date, sentiments.sum/sentiments.size)
+        TrainingTweet(party, head.text, head.date, sentiments.sum/sentiments.size)
       })
       .sortBy(x => x.date.toLocalDate.toEpochDay)
   }
@@ -101,37 +103,64 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
   }
 
   /**
-   * Create Dataframe from RDD, transform the data and pass it to the estimater
+   * Create Dataframe from RDD, transform the data and pass it to the estimater (LinearRegression)
    * @param rdd TrainingData
    * @return Model as dataframe-object with columns:
-   *         "features", "dateformats", "sentiments", "transformed_features", "prediction"
+   *         "features", "dateformats", "label","features_squared", "features_cubic"
+   *         "transformed_features", "prediction"
    */
   def trainModel(rdd:RDD[TrainingTweet]):DataFrame = {
     val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment))
-    // (Double, Date, Double)
 
+    val func:UserDefinedFunction = udf((value:Double, exponent:Int) => {
+      Math.pow(value, exponent)
+    })
+
+    //Create Dataframe from RDD
     val df = ss.createDataFrame(relevantData)
       .withColumnRenamed("_1", "features")
       .withColumnRenamed("_2", "dateformats")
-      .withColumnRenamed("_3", "sentiments")
+      .withColumnRenamed("_3", "label") //sentiments
+      .withColumn("features_squared", functions.pow( col("features"), lit(2) ))
+      .withColumn("features_cubic", functions.pow( col("features"), lit(3) ))
       .cache()
 
-    // TODO Hier noch Komplexität überarbeiten
+
+    //Transformer
     val transformedData = new VectorAssembler()
-      .setInputCols(Array("features"))
+      .setInputCols(Array("features", "features_squared", "features_cubic"))
       .setOutputCol("transformed_features")
       .transform(df)
       .cache()
 
     val lr = new LinearRegression()
       .setFeaturesCol("transformed_features")
-      .setLabelCol("sentiments")
+      .setLabelCol("label")
+      .setMaxIter(10)
 
-    val model = lr.fit(transformedData)
+    //Validation - more info about validation here: https://spark.apache.org/docs/latest/ml-tuning.html
+    val paramGrid = new ParamGridBuilder()
+      .addGrid(lr.regParam, Array(0.1, 0.01))
+      .addGrid(lr.fitIntercept)
+      .addGrid(lr.elasticNetParam, Array(0.0, 0.5, 1.0))
+      .build()
 
-    println("Result for model:  " + model.coefficients + "  ---  " + model.intercept)
+    val trainValidationSplit = new TrainValidationSplit()
+      .setEstimator(lr)
+      .setEvaluator(new RegressionEvaluator())
+      .setEstimatorParamMaps(paramGrid)
+      .setTrainRatio(0.8)
+      .setParallelism(2)
 
-    model.transform(transformedData)
+    val model = trainValidationSplit.fit(transformedData)
+    val result_model = model.transform(transformedData)
+
+    //Evaluation
+    val eval = new RegressionEvaluator()
+    println( "Evaluation: ", eval.evaluate(result_model) )
+    println("Large better? ", eval.isLargerBetter)
+
+    result_model
   }
 }
 
@@ -147,5 +176,5 @@ object Training {
    * @param value Date as long value
    * @return Date as downsized double value
    */
-  def downsize(value:Long):Double = value / 10000.0
+  def downsize(value:Long):Double = value / 1000.0
 }
