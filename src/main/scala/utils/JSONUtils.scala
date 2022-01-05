@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 
-import scala.io.Source
 
 /**
  * Provides methods for json object serialization and deserialization.

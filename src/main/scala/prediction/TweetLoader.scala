@@ -8,22 +8,22 @@ import java.time.format.DateTimeFormatter
 import utils.SentimentAnalysisUtils
 
 import java.sql.Date
-import scala.util.Random
+
 
 
 /**
  * Class that provides methods to filter needed attributes from tweets and create a RDD with TrainingTweet-objects
  */
 object TweetLoader {
-  val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd")
+  val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
    * @param date Date field of tweet
-   * @return LocalDateTime object
+   * @return LocalDate object
    */
-  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(19), dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date, dtf)
 
   /**
    * @param document Tweet
@@ -57,7 +57,6 @@ object TweetLoader {
   }
 
 
-
   /**
    * @param rdd RDD with loaded tweets
    * @return RDD with filtered attributes of the tweet (party, text, created_at) and the sentiment value
@@ -66,10 +65,8 @@ object TweetLoader {
     rdd.map( x => {
       val text = getText(x)
       val sentiment = SentimentAnalysisUtils.detectSentiment(text)
-      val randgen= new Random()
 
       TrainingTweet(getParty(x), text, getDate(x), sentiment)
     } )
   }
-
 }

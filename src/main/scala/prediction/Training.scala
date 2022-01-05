@@ -1,15 +1,22 @@
 package prediction
 
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.feature.{StandardScaler, VectorAssembler}
+import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.regression.LinearRegression
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.jfree.data.xy.DefaultXYDataset
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.chart.plot.PlotOrientation
 
 import javax.swing.{JFrame, WindowConstants}
+
+/**
+ * Use the Spark-ML pipeline for Training
+ * See for more information: https://spark.apache.org/docs/latest/ml-pipeline.html
+ * @param data Raw data for Training saved as RDD
+ * @param ss SparkSession-object
+ */
 
 class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
@@ -17,7 +24,6 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
     For now every RDD will be split by party
     Could change later...
    */
-
 
   val data_CDU: RDD[TrainingTweet] = prepareData(data, "CDU").cache()
   val data_SPD: RDD[TrainingTweet] = prepareData(data, "SPD").cache()
@@ -59,6 +65,10 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
   /**
    * Shows a line graph with sentiment values (y axix) depending on a specific date (x axis)
+   * @param dates x values
+   * @param sentiments y values
+   * @param title title
+   * @return JFrame object, that should be disposed later from the outside
    */
   def plotData(dates:Array[Double], sentiments:Array[Double], title:String):JFrame = {
     val dataArray = Array.ofDim[Double](2, sentiments.length)
@@ -75,33 +85,30 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
     val show  = false
     val toolTips = false
     val urls = false
+
     val chart:JFreeChart= ChartFactory.createXYLineChart( plotTitle, xaxis, yaxis,
       dataset, orientation, show, toolTips, urls)
 
     val frame:JFrame = new JFrame("Data")
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
+
     val chartPanel: ChartPanel = new ChartPanel(chart)
     frame.setContentPane(chartPanel)
     frame.pack()
     frame.setVisible(true)
 
-    //println("Please press enter....")
-    //System.in.read()
-    //frame.setVisible(false)
-    //frame.dispose()
-
     frame
   }
 
   /**
-   *  columns of returning dataframe: features, dateformats, sentiments, transformed_features, prediction
-   *
+   * Create Dataframe from RDD, transform the data and pass it to the estimater
    * @param rdd TrainingData
-   * @return ...
+   * @return Model as dataframe-object with columns:
+   *         "features", "dateformats", "sentiments", "transformed_features", "prediction"
    */
   def trainModel(rdd:RDD[TrainingTweet]):DataFrame = {
-
-    val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment)) // (Double, LocalDate, Double)
+    val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment))
+    // (Double, Date, Double)
 
     val df = ss.createDataFrame(relevantData)
       .withColumnRenamed("_1", "features")
@@ -122,7 +129,7 @@ class Training(data:RDD[TrainingTweet], ss:SparkSession) {
 
     val model = lr.fit(transformedData)
 
-    println(model.coefficients + "  ---  " + model.intercept)
+    println("Result for model:  " + model.coefficients + "  ---  " + model.intercept)
 
     model.transform(transformedData)
   }
@@ -135,6 +142,10 @@ object Training {
   def getDates(rdd:RDD[TrainingTweet]):Array[Double] =
     rdd.map( tweet => downsize(tweet.date.toLocalDate.toEpochDay) ).collect()
 
-  //Long values of the dates are all over 10000, so they will be downsized for convenience
+  /**
+   * Long values of the dates are all over 10000, so they will be downsized for convenience
+   * @param value Date as long value
+   * @return Date as downsized double value
+   */
   def downsize(value:Long):Double = value / 10000.0
 }

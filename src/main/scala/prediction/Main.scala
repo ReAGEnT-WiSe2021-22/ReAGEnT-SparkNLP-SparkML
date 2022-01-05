@@ -1,6 +1,6 @@
 package prediction
 
-import org.apache.spark.sql.{Encoders, SparkSession}
+import org.apache.spark.sql.SparkSession
 import com.mongodb.spark.MongoSpark
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{IOUtils, TwitterUtilities}
@@ -44,8 +44,8 @@ object Main {
     conf.set("spark.executor.memory","6g")
     conf.set("spark.driver.memory", "4g")
 
-    val ss:SparkSession= SparkSession.builder.appName("SparkLocal").
-      master("local[*]").config(conf).getOrCreate
+    val ss:SparkSession= SparkSession.builder.appName("Predicition_of_party_reputation")
+      .master("local[*]").config(conf).getOrCreate
     val sc:SparkContext = ss.sparkContext
 
 
@@ -59,25 +59,32 @@ object Main {
 
     val dates = Training.getDates(train.data_FDP)
     val sentiments = Training.getSentiments(train.data_FDP)
-    val frame = train.plotData(dates, sentiments, "Raw Data")
+    val rawData_frame = train.plotData(dates, sentiments, "Raw Data")
 
 
     println("--- Training ---")
     val model = train.trainModel(train.data_FDP).cache()
 
+    // TODO Validation
+    // TODO Future Prediction with Live Data
+    // TODO Write to MongoDB
+
+
+    // --- Visualization --- //
 
     val prediction = model.collect().map(x => x.get(4).asInstanceOf[Double])
 
-    val frame2 = train.plotData(dates, prediction, "Prediction")
+    val prediction_frame = train.plotData(dates, prediction, "Prediction")
 
 
-    println("Please press enter....")
+    println("Please press enter to close frames...")
     System.in.read()
 
-    frame.setVisible(false)
-    frame.dispose()
-    frame2.setVisible(false)
-    frame2.dispose()
+    rawData_frame.setVisible(false)
+    rawData_frame.dispose()
+    prediction_frame.setVisible(false)
+    prediction_frame.dispose()
+
 
     ss.stop()
     // If 'Goodbye' was printed, the programm had finished successfully
@@ -85,4 +92,4 @@ object Main {
   }
 }
 
-// TODO: TweetLoaderTest
+// TODO TweetLoaderTest

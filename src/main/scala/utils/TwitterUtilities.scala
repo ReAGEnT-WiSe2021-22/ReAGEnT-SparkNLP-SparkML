@@ -2,8 +2,7 @@ package utils
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
-import java.sql.{Date, Timestamp}
+import java.sql.Date
 import prediction.TrainingTweet
 
 import scala.util.Random
