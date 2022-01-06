@@ -7,11 +7,7 @@ import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions.{col, lit}
 import org.apache.spark.sql.{DataFrame, SparkSession, functions}
-import org.jfree.data.xy.DefaultXYDataset
-import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
-import org.jfree.chart.plot.PlotOrientation
 
-import javax.swing.{JFrame, WindowConstants}
 
 /**
  * Use the Spark-ML pipeline for training
@@ -149,43 +145,6 @@ object Training {
   def printData(rdd:RDD[TrainingTweet], amount:Int = 10):Unit = {
     if (rdd.isEmpty())throw new Error("Printing not possible, RDD is empty")
     rdd.take(amount).foreach(println)
-  }
-
-  /**
-   * Shows a line graph with sentiment values (y axix) depending on a specific date (x axis)
-   * @param dates x values, dates downsized
-   * @param sentiments y values, sentiment values
-   * @param title title
-   * @return JFrame object, that should be disposed later from the outside
-   */
-  def plotData(dates:Array[Double], sentiments:Array[Double], title:String):JFrame = {
-    val dataArray = Array.ofDim[Double](2, sentiments.length)
-
-    dataArray(0) = dates      // x values
-    dataArray(1) = sentiments // y values
-
-    val dataset = new DefaultXYDataset
-    dataset.addSeries("Training Data", dataArray)
-    val plotTitle = title
-    val xaxis = "dates"
-    val yaxis = "sentiments"
-    val orientation = PlotOrientation.VERTICAL
-    val show  = false
-    val toolTips = false
-    val urls = false
-
-    val chart:JFreeChart= ChartFactory.createXYLineChart( plotTitle, xaxis, yaxis,
-      dataset, orientation, show, toolTips, urls)
-
-    val frame:JFrame = new JFrame("Data")
-    frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
-
-    val chartPanel: ChartPanel = new ChartPanel(chart)
-    frame.setContentPane(chartPanel)
-    frame.pack()
-    frame.setVisible(true)
-
-    frame
   }
 
   /**

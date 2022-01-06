@@ -17,7 +17,7 @@ object Main {
   def main(args: Array[String]):Unit = {
 
 
-    /*Will be used later
+    /* Will be used later
 
     // Create Sparksession
     val sparkSession = SparkSession.builder()
@@ -52,42 +52,39 @@ object Main {
 
 
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
-    println("File read")
+    println("--- File read ---")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap( TwitterUtilities.parse ).cache()
-    println("Parsed")
+    println("--- Parsed ---")
 
 
     val train = new Training(trainingData, ss)
 
     val data_rdd = train.data_CDU
-    val dates = Training.getDates(data_rdd)
-    val sentiments = Training.getSentiments(data_rdd)
-
 
     println("--- Training ---")
     val result_model = train.trainModel(data_rdd).cache()
     println("Increased reputation: " + Training.trendAnalyse(result_model))
 
 
-    // TODO Write to MongoDB
+    // --- Visualization Start --- //
 
+    val dates = Training.getDates(data_rdd)
+    val sentiments = Training.getSentiments(data_rdd)
+    val predictions = result_model.collect().map(x => x.get(6).asInstanceOf[Double])
 
-    // --- Visualization --- //
-
-    val prediction = result_model.collect().map(x => x.get(6).asInstanceOf[Double])
-
-    val rawData_frame = Training.plotData(dates, sentiments, "Raw Data")
-    val prediction_frame = Training.plotData(dates, prediction, "Prediction")
-
+    val raw_data_frame = TrainingVisualizer.plotData(dates, sentiments, "Raw Data")
+    val prediction_frame = TrainingVisualizer.plotData(dates, predictions, "Prediction")
 
     println("Please press enter to close frames...")
     System.in.read()
 
-    rawData_frame.setVisible(false)
-    rawData_frame.dispose()
-    prediction_frame.setVisible(false)
-    prediction_frame.dispose()
+    TrainingVisualizer.disposeFrame(raw_data_frame)
+    TrainingVisualizer.disposeFrame(prediction_frame)
 
+    // --- Visualization End --- //
+
+
+    // TODO Write to MongoDB
 
     ss.stop()
     // If 'Goodbye' was printed, the programm had finished successfully
