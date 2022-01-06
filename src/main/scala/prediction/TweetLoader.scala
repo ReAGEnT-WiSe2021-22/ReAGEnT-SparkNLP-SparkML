@@ -9,14 +9,11 @@ import utils.SentimentAnalysisUtils
 
 import java.sql.Date
 
-
-
 /**
  * Class that provides methods to filter needed attributes from tweets and create a RDD with TrainingTweet-objects
  */
 object TweetLoader {
   val dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
 
   /**
    * Transforms a string-timestamp from Twitter into a LocalDateTime object
@@ -55,7 +52,6 @@ object TweetLoader {
     //See spark-ml StopWordsRemover
     ???
   }
-
 
   /**
    * @param rdd RDD with loaded tweets

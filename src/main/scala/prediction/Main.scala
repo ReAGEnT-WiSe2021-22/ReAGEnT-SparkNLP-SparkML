@@ -35,7 +35,7 @@ object Main {
     val rdd = MongoSpark.load(sc).rdd.cache() //RDD[Document]
 
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
-
+    println("##### TweetLoader finished #####")
      */
 
     //For now, just use local tweets
@@ -58,24 +58,24 @@ object Main {
     val train = new Training(trainingData, ss)
 
     val rdd = train.data_CDU
-
     val dates = Training.getDates(rdd)
     val sentiments = Training.getSentiments(rdd)
 
 
     println("--- Training ---")
-    val model = train.trainModel(rdd).cache()
+    val result_model = train.trainModel(rdd).cache()
+    println("Increased reputation: " + Training.trendAnalyse(result_model))
 
-    // TODO Future Prediction with Live Data
+
     // TODO Write to MongoDB
 
 
     // --- Visualization --- //
 
-    val prediction = model.collect().map(x => x.get(6).asInstanceOf[Double])
+    val prediction = result_model.collect().map(x => x.get(6).asInstanceOf[Double])
 
-    val rawData_frame = train.plotData(dates, sentiments, "Raw Data")
-    val prediction_frame = train.plotData(dates, prediction, "Prediction")
+    val rawData_frame = Training.plotData(dates, sentiments, "Raw Data")
+    val prediction_frame = Training.plotData(dates, prediction, "Prediction")
 
 
     println("Please press enter to close frames...")
