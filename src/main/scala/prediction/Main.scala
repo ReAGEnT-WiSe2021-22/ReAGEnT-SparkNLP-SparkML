@@ -10,13 +10,14 @@ import org.apache.spark.rdd.RDD
 /**
  * At first political tweets from 2021 will be loaded from the database
  * Then the tweets will be prepared and handed over to the training
+ * At the end the models will be written to the database
  */
 object Main {
 
   def main(args: Array[String]):Unit = {
 
-    /*
-    Will be used later
+
+    /*Will be used later
 
     // Create Sparksession
     val sparkSession = SparkSession.builder()
@@ -30,13 +31,14 @@ object Main {
     val tweets = MongoSpark.load(sparkSession)
     tweets.createOrReplaceTempView("tweets")
 
-    // Create SparkSession
+    // Create SparkContext
     val sc = sparkSession.sparkContext
     val rdd = MongoSpark.load(sc).rdd.cache() //RDD[Document]
 
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
     println("##### TweetLoader finished #####")
-     */
+
+    */
 
     //For now, just use local tweets
 
@@ -57,13 +59,13 @@ object Main {
 
     val train = new Training(trainingData, ss)
 
-    val rdd = train.data_CDU
-    val dates = Training.getDates(rdd)
-    val sentiments = Training.getSentiments(rdd)
+    val data_rdd = train.data_CDU
+    val dates = Training.getDates(data_rdd)
+    val sentiments = Training.getSentiments(data_rdd)
 
 
     println("--- Training ---")
-    val result_model = train.trainModel(rdd).cache()
+    val result_model = train.trainModel(data_rdd).cache()
     println("Increased reputation: " + Training.trendAnalyse(result_model))
 
 

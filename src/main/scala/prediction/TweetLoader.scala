@@ -1,6 +1,8 @@
 package prediction
 
+import org.apache.spark.ml.feature.StopWordsRemover
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
 import org.bson.Document
 
 import java.time.LocalDate
@@ -43,15 +45,6 @@ object TweetLoader {
     Date.valueOf(localDate)
   }
 
-  /**
-   * @param text Unchanged tweet text
-   * @return text without stopwords
-   */
-  def removeStopWords(text:String):String = {
-    //TODO Will be done maybe later
-    //See spark-ml StopWordsRemover
-    ???
-  }
 
   /**
    * @param rdd RDD with loaded tweets
