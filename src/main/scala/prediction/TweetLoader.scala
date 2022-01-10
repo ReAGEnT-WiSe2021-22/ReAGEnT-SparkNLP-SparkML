@@ -1,8 +1,6 @@
 package prediction
 
-import org.apache.spark.ml.feature.StopWordsRemover
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SparkSession
 import org.bson.Document
 
 import java.time.LocalDate

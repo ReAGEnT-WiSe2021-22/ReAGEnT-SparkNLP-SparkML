@@ -66,6 +66,7 @@ class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
     if (rdd.isEmpty()) throw new Error("Training not possible, RDD is empty")
 
     val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment))
+    //(Double, Date, Double)
 
     //Create Dataframe from RDD
     val df = ss.createDataFrame(relevantData)

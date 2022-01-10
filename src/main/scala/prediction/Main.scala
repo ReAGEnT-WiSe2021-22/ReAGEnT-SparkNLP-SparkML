@@ -1,10 +1,14 @@
 package prediction
 
-import org.apache.spark.sql.SparkSession
-import com.mongodb.spark.MongoSpark
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import com.mongodb.spark.{MongoSpark, toDocumentRDDFunctions}
+import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{IOUtils, TwitterUtilities}
 import org.apache.spark.rdd.RDD
+import org.bson.Document
+
+import java.sql.Date
 
 
 /**
@@ -14,6 +18,10 @@ import org.apache.spark.rdd.RDD
  */
 object Main {
 
+  /**
+   *
+   * @param args Unused
+   */
   def main(args: Array[String]):Unit = {
 
 
@@ -46,9 +54,9 @@ object Main {
     conf.set("spark.executor.memory","6g")
     conf.set("spark.driver.memory", "4g")
 
-    val ss:SparkSession= SparkSession.builder.appName("Predicition_of_party_reputation")
+    val sparkSession:SparkSession= SparkSession.builder.appName("Predicition_of_party_reputation")
       .master("local[*]").config(conf).getOrCreate
-    val sc:SparkContext = ss.sparkContext
+    val sc:SparkContext = sparkSession.sparkContext
 
 
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
@@ -57,7 +65,7 @@ object Main {
     println("--- Parsed ---")
 
 
-    val train = new Training(trainingData, ss)
+    val train = new Training(trainingData, sparkSession)
 
     val data_rdd = train.data_CDU
 
@@ -83,13 +91,42 @@ object Main {
 
     // --- Visualization End --- //
 
+    val mongoData = createRDDWithDocuments(result_model, "CDU", sparkSession)
+    //mongoData.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.mostTweetsDayByYear?authSource=examples"))))
 
-    // TODO Write to MongoDB
 
-    ss.stop()
+    sparkSession.stop()
     // If 'Goodbye' was printed, the programm had finished successfully
     println("Goodbye")
   }
+
+  /**
+   * Transforms the dataframe with the model to a RDD with party, dates & sentiments
+   *
+   * @param model dataframe with trained model
+   * @param party party of the model
+   * @param sparkSession sparksession-object
+   * @return RDD with Document-objects, so saveToMongoDB() can be called
+   */
+  def createRDDWithDocuments(model:DataFrame, party:String, sparkSession: SparkSession):RDD[Document] = {
+    //Einzelne Elemente
+    val data = model.collect()
+      .map(x => (
+        x.getDate(1).toString, //Dates
+        x.getDouble(6) //Predictions
+      ))
+    val rdd = sparkSession.sparkContext.parallelize(data)
+    rdd.map(x => Document.parse("{partei: \"" + party + "\", date: \"" + x._1 + "\", sentiment: " + x._2 + "}"))
+
+    /*
+    //Listen
+    val dates = model.select("dateformates").collect().map(_(0).toString).toList
+    val predictions = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
+    val seq = Seq(new Document(party, dates.asJava), new Document(party, predictions.asJava))
+    sparkSession.sparkContext.parallelize(seq)
+     */
+  }
 }
+
 
 // TODO TweetLoaderTest
