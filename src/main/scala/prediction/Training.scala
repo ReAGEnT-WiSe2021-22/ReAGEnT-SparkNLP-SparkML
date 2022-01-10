@@ -85,11 +85,10 @@ class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
       .transform(df)
       .cache()
 
-    //Estimater
+    //Estimater - Default iterations: 100
     val linreg = new LinearRegression()
       .setFeaturesCol("transformed_features")
       .setLabelCol("label")
-      .setMaxIter(10)
 
     //Validation - more info about validation here: https://spark.apache.org/docs/latest/ml-tuning.html
     val paramGrid = new ParamGridBuilder()

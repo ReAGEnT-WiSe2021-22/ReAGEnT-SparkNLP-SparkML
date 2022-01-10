@@ -62,6 +62,7 @@ object Main {
     val sc:SparkContext = sparkSession.sparkContext
 
 
+    //About 4900 tweets are saved in political_tweets_test.json for testing
     val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
     println("--- File read ---")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap( TwitterUtilities.parse ).cache()
@@ -84,9 +85,9 @@ object Main {
 
     println("Increased reputation: " + Training.trendAnalyse(trained_model_CDU))
 
-    val dates = Training.getDates(train.data_CDU)
-    val sentiments = Training.getSentiments(train.data_CDU)
-    val predictions = trained_model_CDU.collect().map(x => x.get(6).asInstanceOf[Double])
+    val dates = Training.getDates(train.data_Die_Gruenen)
+    val sentiments = Training.getSentiments(train.data_Die_Gruenen)
+    val predictions = trained_model_Die_Gruenen.collect().map(x => x.get(6).asInstanceOf[Double])
 
     val raw_data_frame = TrainingVisualizer.plotData(dates, sentiments, "Raw Data")
     val prediction_frame = TrainingVisualizer.plotData(dates, predictions, "Prediction")
@@ -101,17 +102,17 @@ object Main {
 
     //Load models into MongoDB, collection: "ml_party_reputation"
     val mongoData_CDU = createRDDWithDocuments(trained_model_CDU, "CDU", sparkSession)
-    mongoData_CDU.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_CDU.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_SPD = createRDDWithDocuments(trained_model_SPD, "SPD", sparkSession)
-    mongoData_SPD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_SPD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_FDP = createRDDWithDocuments(trained_model_FDP, "FDP", sparkSession)
-    mongoData_FDP.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_FDP.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_AfD = createRDDWithDocuments(trained_model_AfD, "AfD", sparkSession)
-    mongoData_AfD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_AfD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_Die_Gruenen = createRDDWithDocuments(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession)
-    mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession)
-    mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    //mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
 
 
     sparkSession.stop()
