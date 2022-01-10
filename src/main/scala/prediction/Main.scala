@@ -7,8 +7,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 import utils.{IOUtils, TwitterUtilities}
 import org.apache.spark.rdd.RDD
 import org.bson.Document
+import scala.collection.JavaConverters._
 
-import java.sql.Date
 
 
 /**
@@ -22,13 +22,10 @@ import java.sql.Date
 object Main {
 
   /**
-   *
+   * Load tweets from DB, prepare Tweets, start Training, write model back to DB
    * @param args Unused
    */
   def main(args: Array[String]):Unit = {
-
-
-    /* Will be used later
 
     // Create Sparksession
     val sparkSession = SparkSession.builder()
@@ -49,8 +46,7 @@ object Main {
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
     println("##### TweetLoader finished #####")
 
-    */
-
+    /*
     //Just use local tweets
 
     val conf:SparkConf = new SparkConf()
@@ -67,20 +63,20 @@ object Main {
     println("--- File read ---")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap( TwitterUtilities.parse ).cache()
     println("--- Parsed ---")
-
+    */
 
 
     val train = new Training(trainingData, sparkSession)
 
     println("--- Training ---")
-    val trained_model_CDU = train.trainModel(train.data_CDU).cache()
-    val trained_model_SPD = train.trainModel(train.data_SPD).cache()
-    val trained_model_FDP = train.trainModel(train.data_FDP).cache()
-    val trained_model_AfD = train.trainModel(train.data_AfD).cache()
-    val trained_model_Die_Gruenen = train.trainModel(train.data_Die_Gruenen).cache()
+    //val trained_model_CDU = train.trainModel(train.data_CDU).cache()
+    //val trained_model_SPD = train.trainModel(train.data_SPD).cache()
+    //val trained_model_FDP = train.trainModel(train.data_FDP).cache()
+    //val trained_model_AfD = train.trainModel(train.data_AfD).cache()
+    //val trained_model_Die_Gruenen = train.trainModel(train.data_Die_Gruenen).cache()
     val trained_model_Die_Linke = train.trainModel(train.data_Die_Linke).cache()
 
-
+    /*
     // --- Visualization Start, just for Testing --- //
 
     println("Increased reputation: " + Training.trendAnalyse(trained_model_CDU))
@@ -99,20 +95,23 @@ object Main {
     TrainingVisualizer.disposeFrame(prediction_frame)
 
     // --- Visualization End --- //
+    */
 
     //Load models into MongoDB, collection: "ml_party_reputation"
+    /*
     val mongoData_CDU = createRDDWithDocuments(trained_model_CDU, "CDU", sparkSession)
-    //mongoData_CDU.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_CDU.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_SPD = createRDDWithDocuments(trained_model_SPD, "SPD", sparkSession)
-    //mongoData_SPD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_SPD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_FDP = createRDDWithDocuments(trained_model_FDP, "FDP", sparkSession)
-    //mongoData_FDP.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_FDP.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_AfD = createRDDWithDocuments(trained_model_AfD, "AfD", sparkSession)
-    //mongoData_AfD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_AfD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     val mongoData_Die_Gruenen = createRDDWithDocuments(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession)
-    //mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    */
     val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession)
-    //mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
 
 
     sparkSession.stop()
@@ -129,6 +128,7 @@ object Main {
    * @return RDD with Document-objects, so saveToMongoDB() can be called
    */
   def createRDDWithDocuments(model:DataFrame, party:String, sparkSession: SparkSession):RDD[Document] = {
+    /*
     //Einzelne Elemente
     val data = model.collect()
       .map(x => (
@@ -137,16 +137,14 @@ object Main {
       ))
     val rdd = sparkSession.sparkContext.parallelize(data)
     rdd.map(x => Document.parse("{partei: \"" + party + "\", date: \"" + x._1 + "\", sentiment: " + x._2 + "}"))
+*/
 
-    /*
     //Listen
     val dates = model.select("dateformates").collect().map(_(0).toString).toList
     val predictions = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     val seq = Seq(new Document(party, dates.asJava), new Document(party, predictions.asJava))
     sparkSession.sparkContext.parallelize(seq)
-     */
+
   }
 }
 
-
-// TODO TweetLoaderTest
