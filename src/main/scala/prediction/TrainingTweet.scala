@@ -17,5 +17,4 @@ case class TrainingTweet(party:String, text:String, date:Date, sentiment:Double)
     "date: " + date.toString + sys.props("line.separator") +
     "sentiment: " + sentiment + sys.props("line.separator")
   }
-
 }

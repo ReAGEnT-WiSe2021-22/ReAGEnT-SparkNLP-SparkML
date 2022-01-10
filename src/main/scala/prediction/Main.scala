@@ -14,7 +14,10 @@ import java.sql.Date
 /**
  * At first political tweets from 2021 will be loaded from the database
  * Then the tweets will be prepared and handed over to the training
- * At the end the models will be written to the database
+ * During the training, for each date a prediction will be calculated, everything will be saved in dataframe
+ * At the end the dataframes with models (for each party) will be written to the database
+ *
+ * For some testing a visualization was added which isn´t needed after deployment
  */
 object Main {
 
@@ -48,7 +51,7 @@ object Main {
 
     */
 
-    //For now, just use local tweets
+    //Just use local tweets
 
     val conf:SparkConf = new SparkConf()
     conf.set("spark.executor.memory","6g")
@@ -65,20 +68,25 @@ object Main {
     println("--- Parsed ---")
 
 
+
     val train = new Training(trainingData, sparkSession)
 
-    val data_rdd = train.data_CDU
-
     println("--- Training ---")
-    val result_model = train.trainModel(data_rdd).cache()
-    println("Increased reputation: " + Training.trendAnalyse(result_model))
+    val trained_model_CDU = train.trainModel(train.data_CDU).cache()
+    val trained_model_SPD = train.trainModel(train.data_SPD).cache()
+    val trained_model_FDP = train.trainModel(train.data_FDP).cache()
+    val trained_model_AfD = train.trainModel(train.data_AfD).cache()
+    val trained_model_Die_Gruenen = train.trainModel(train.data_Die_Gruenen).cache()
+    val trained_model_Die_Linke = train.trainModel(train.data_Die_Linke).cache()
 
 
-    // --- Visualization Start --- //
+    // --- Visualization Start, just for Testing --- //
 
-    val dates = Training.getDates(data_rdd)
-    val sentiments = Training.getSentiments(data_rdd)
-    val predictions = result_model.collect().map(x => x.get(6).asInstanceOf[Double])
+    println("Increased reputation: " + Training.trendAnalyse(trained_model_CDU))
+
+    val dates = Training.getDates(train.data_CDU)
+    val sentiments = Training.getSentiments(train.data_CDU)
+    val predictions = trained_model_CDU.collect().map(x => x.get(6).asInstanceOf[Double])
 
     val raw_data_frame = TrainingVisualizer.plotData(dates, sentiments, "Raw Data")
     val prediction_frame = TrainingVisualizer.plotData(dates, predictions, "Prediction")
@@ -91,8 +99,19 @@ object Main {
 
     // --- Visualization End --- //
 
-    val mongoData = createRDDWithDocuments(result_model, "CDU", sparkSession)
-    //mongoData.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.mostTweetsDayByYear?authSource=examples"))))
+    //Load models into MongoDB, collection: "ml_party_reputation"
+    val mongoData_CDU = createRDDWithDocuments(trained_model_CDU, "CDU", sparkSession)
+    mongoData_CDU.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    val mongoData_SPD = createRDDWithDocuments(trained_model_SPD, "SPD", sparkSession)
+    mongoData_SPD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    val mongoData_FDP = createRDDWithDocuments(trained_model_FDP, "FDP", sparkSession)
+    mongoData_FDP.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    val mongoData_AfD = createRDDWithDocuments(trained_model_AfD, "AfD", sparkSession)
+    mongoData_AfD.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    val mongoData_Die_Gruenen = createRDDWithDocuments(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession)
+    mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession)
+    mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
 
 
     sparkSession.stop()
