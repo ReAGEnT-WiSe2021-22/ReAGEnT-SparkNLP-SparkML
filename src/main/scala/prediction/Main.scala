@@ -135,7 +135,7 @@ object Main {
     if(selectPredictions) values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     else values = model.select("label").collect().map(_(0).asInstanceOf[Double]).toList
 
-    val document = (new Document("Partei", party), new Document("dates", dates.asJava), new Document("predictions", values.asJava))
+    val document = new Document("Partei", party).append("dates", dates.asJava).append("predictions", values.asJava)
     val seq = Seq(document)
     sparkSession.sparkContext.parallelize(seq)
   }
