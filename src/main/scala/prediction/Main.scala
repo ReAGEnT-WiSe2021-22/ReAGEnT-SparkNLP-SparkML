@@ -110,9 +110,9 @@ object Main {
     val mongoData_Die_Gruenen = createRDDWithDocuments(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession)
     mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     */
-    val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession)
+    val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession, true)
     mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
-
+    println("Model for 'Die_Linke' saved to DB")
 
     sparkSession.stop()
     // If 'Goodbye' was printed, the programm had finished successfully
@@ -125,26 +125,19 @@ object Main {
    * @param model dataframe with trained model
    * @param party party of the model
    * @param sparkSession sparksession-object
+   * @param selectPredictions If true, predictions will be selected,
+   *                          if false, the original sentiment values ("label") will be selected
    * @return RDD with Document-objects, so saveToMongoDB() can be called
    */
-  def createRDDWithDocuments(model:DataFrame, party:String, sparkSession: SparkSession):RDD[Document] = {
-    /*
-    //Einzelne Elemente
-    val data = model.collect()
-      .map(x => (
-        x.getDate(1).toString, //Dates
-        x.getDouble(6) //Predictions
-      ))
-    val rdd = sparkSession.sparkContext.parallelize(data)
-    rdd.map(x => Document.parse("{partei: \"" + party + "\", date: \"" + x._1 + "\", sentiment: " + x._2 + "}"))
-*/
-
-    //Listen
+  def createRDDWithDocuments(model:DataFrame, party:String, sparkSession: SparkSession, selectPredictions:Boolean):RDD[Document] = {
     val dates = model.select("dateformats").collect().map(_(0).toString).toList
-    val predictions = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
-    val seq = Seq(new Document(party, dates.asJava), new Document(party, predictions.asJava))
-    sparkSession.sparkContext.parallelize(seq)
+    var values:List[Double] = List()
+    if(selectPredictions) values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
+    else values = model.select("label").collect().map(_(0).asInstanceOf[Double]).toList
 
+    val document = (new Document("Partei", party), new Document("dates", dates.asJava), new Document("predictions", values.asJava))
+    val seq = Seq(document)
+    sparkSession.sparkContext.parallelize(seq)
   }
 }
 

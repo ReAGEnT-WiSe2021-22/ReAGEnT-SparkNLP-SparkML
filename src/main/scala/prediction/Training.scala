@@ -110,9 +110,8 @@ class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
 
     //Evaluation
     val eval = new RegressionEvaluator()
-    println("Evaluation: " + eval.evaluate(result_model))
-
-    //println("Large better? " + eval.isLargerBetter)
+    println(">>> Evaluation: " + eval.evaluate(result_model))
+    println("Large better? " + eval.isLargerBetter)
     //Just for testing
 
     result_model
