@@ -31,7 +31,7 @@ object Main {
     val sparkSession = SparkSession.builder()
       .master("local")
       .appName("Prediction_of_party_reputation")
-      .config("spark.mongodb.input.uri", sys.env("REAGENT_MONGO") + "examples.political_tweets_2021?authSource=examples")
+      .config("spark.mongodb.input.uri", sys.env("REAGENT_MONGO") + "examples.party_reputation_test?authSource=examples")
       .config("spark.testing.memory", 2147480000)
       .getOrCreate()
 

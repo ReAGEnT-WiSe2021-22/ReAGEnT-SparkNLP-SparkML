@@ -18,11 +18,11 @@ import org.apache.spark.sql.{DataFrame, SparkSession, functions}
 class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
 
   //Possible parties: "CDU", "SPD", "FDP", "AfD", "Die_Gruenen", "Die_Linke"
-  val data_CDU: RDD[TrainingTweet] = prepareData(raw_data, "CDU").cache()
-  val data_SPD: RDD[TrainingTweet] = prepareData(raw_data, "SPD").cache()
-  val data_FDP: RDD[TrainingTweet] = prepareData(raw_data, "FDP").cache()
-  val data_AfD: RDD[TrainingTweet] = prepareData(raw_data, "AfD").cache()
-  val data_Die_Gruenen: RDD[TrainingTweet] = prepareData(raw_data, "Die_Gruenen").cache()
+  //val data_CDU: RDD[TrainingTweet] = prepareData(raw_data, "CDU").cache()
+  //val data_SPD: RDD[TrainingTweet] = prepareData(raw_data, "SPD").cache()
+  //val data_FDP: RDD[TrainingTweet] = prepareData(raw_data, "FDP").cache()
+  //val data_AfD: RDD[TrainingTweet] = prepareData(raw_data, "AfD").cache()
+  //val data_Die_Gruenen: RDD[TrainingTweet] = prepareData(raw_data, "Die_Gruenen").cache()
   val data_Die_Linke: RDD[TrainingTweet] = prepareData(raw_data, "Die_Linke").cache()
 
 
