@@ -111,7 +111,7 @@ object Main {
     mongoData_Die_Gruenen.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
     */
     val mongoData_Die_Linke = createRDDWithDocuments(trained_model_Die_Linke, "Die_Linke", sparkSession, true)
-    mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation?authSource=examples"))))
+    mongoData_Die_Linke.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
     println("Model for 'Die_Linke' saved to DB")
 
     sparkSession.stop()
@@ -135,7 +135,7 @@ object Main {
     if(selectPredictions) values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     else values = model.select("label").collect().map(_(0).asInstanceOf[Double]).toList
 
-    val document = new Document("Partei", party).append("dates", dates.asJava).append("predictions", values.asJava)
+    val document = new Document("Partei", party).append("dates", dates.asJava).append("values", values.asJava)
     val seq = Seq(document)
     sparkSession.sparkContext.parallelize(seq)
   }
