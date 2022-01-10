@@ -140,7 +140,7 @@ object Main {
 */
 
     //Listen
-    val dates = model.select("dateformates").collect().map(_(0).toString).toList
+    val dates = model.select("dateformats").collect().map(_(0).toString).toList
     val predictions = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     val seq = Seq(new Document(party, dates.asJava), new Document(party, predictions.asJava))
     sparkSession.sparkContext.parallelize(seq)
