@@ -20,7 +20,7 @@ object TweetLoader {
    * @param date Date field of tweet
    * @return LocalDate object
    */
-  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date, dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(10), dtf)
 
   /**
    * @param document Tweet
