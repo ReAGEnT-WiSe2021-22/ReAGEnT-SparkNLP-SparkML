@@ -4,9 +4,10 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.mongodb.spark.{MongoSpark, toDocumentRDDFunctions}
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.{IOUtils, TwitterUtilities}
+import utils.{IOUtils, TrainingVisualizer, TweetLoader, TwitterUtilities}
 import org.apache.spark.rdd.RDD
 import org.bson.Document
+
 import scala.collection.JavaConverters._
 
 
@@ -134,7 +135,6 @@ object Main {
     val mongoData_Die_Gruenen_lab = createRDDWithDocument(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession, selectPredictions = false).cache()
     mongoData_Die_Gruenen_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
     println("Model for 'Die_Gruenen' saved to DB")
-
 
     val mongoData_Die_Linke_pred = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", sparkSession, selectPredictions = true).cache()
     mongoData_Die_Linke_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
