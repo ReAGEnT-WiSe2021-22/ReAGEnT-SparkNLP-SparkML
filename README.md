@@ -8,7 +8,7 @@ The Training uses Linear Regression to train a model that can predict the reputa
 The model will be saved to the MongoDB after Training together with the real sentiment values for each day.
 
 
-The model contains: party:String, dates:String, sentiments:Double
+The model contains: party:String, dates:List[String], sentiments:List[Double]
 
 ###Prerequisites
 

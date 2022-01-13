@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  * At the end the dataframes with models (for each party) will be written to the database
  *
  * Dates & predictions will be written to the collection: ml_party_reputation_predictions
- * Dates & original sentiment values (labels) will be written to the collections ml_party_reputation_labels
+ * Dates & original sentiment values (labels) will be written to the collections: ml_party_reputation_labels
  *
  * For some testing a visualization was added which isn´t needed after deployment
  */
@@ -30,7 +30,7 @@ object Main {
    */
   def main(args: Array[String]):Unit = {
 
-    // Create Sparksession
+    // Create SparkSession
     val sparkSession = SparkSession.builder()
       .master("local")
       .appName("ML_party_reputation")
@@ -49,8 +49,8 @@ object Main {
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
     println("##### TweetLoader finished #####")
 
-    /*
-    //Just use local tweets for testing
+/*
+    // --- Just use local tweets for testing --- //
 
     val conf:SparkConf = new SparkConf()
     conf.set("spark.executor.memory","6g")
@@ -62,11 +62,13 @@ object Main {
 
 
     //About 4900 tweets are saved in political_tweets_test.json for testing
-    val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_test.json",false).cache()
+    val twitterData:RDD[String] = IOUtils.RDDFromFile("political_tweets_CDU_test.json", isAResource = false).cache()
     println("--- File read ---")
     val trainingData:RDD[TrainingTweet] = twitterData.flatMap( TwitterUtilities.parse ).cache()
     println("--- Parsed ---")
-    */
+
+    // --- End of local tweets for testing --- //
+*/
 
     val train = new Training(trainingData, sparkSession)
 
@@ -86,12 +88,12 @@ object Main {
     println("Increased reputation Die_Gruenen: " + Training.trendAnalyse(trained_model_Die_Gruenen))
     println("Increased reputation Die_Linke: " + Training.trendAnalyse(trained_model_Die_Linke))
 
-    /*
+/*
     // --- Visualization Start, just for local testing --- //
 
-    val dates = Training.getDates(train.data_CDU)
-    val sentiments = Training.getSentiments(train.data_CDU)
-    val predictions = trained_model_Die_Gruenen.collect().map(x => x.get(6).asInstanceOf[Double])
+    val dates = Training.getDates(train.data_Die_Gruenen)
+    val sentiments = Training.getSentiments(train.data_Die_Gruenen)
+    val predictions = trained_model_Die_Gruenen.collect().map(x => x.getDouble(4))
 
     val raw_data_frame = TrainingVisualizer.plotData(dates, sentiments, "Raw Data")
     val prediction_frame = TrainingVisualizer.plotData(dates, predictions, "Prediction")
@@ -103,44 +105,44 @@ object Main {
     TrainingVisualizer.disposeFrame(prediction_frame)
 
     // --- Visualization End --- //
-    */
+*/
 
     // Load models into MongoDB, collection: "ml_party_reputation_predictions & ml_party_reputation_labels"
-    val mongoData_CDU_pred = createRDDWithDocument(trained_model_CDU, "CDU", sparkSession, selectPredictions = true).cache()
+    val mongoData_CDU_pred = createRDDWithDocument(trained_model_CDU, "CDU", selectPredictions = true).cache()
     mongoData_CDU_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_CDU_lab = createRDDWithDocument(trained_model_CDU, "CDU", sparkSession, selectPredictions = false).cache()
+    val mongoData_CDU_lab = createRDDWithDocument(trained_model_CDU, "CDU", selectPredictions = false).cache()
     mongoData_CDU_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
     println("Data for 'CDU' saved to DB")
 
-    val mongoData_SPD_pred = createRDDWithDocument(trained_model_SPD, "SPD", sparkSession, selectPredictions = true).cache()
+    val mongoData_SPD_pred = createRDDWithDocument(trained_model_SPD, "SPD", selectPredictions = true).cache()
     mongoData_SPD_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_SPD_lab = createRDDWithDocument(trained_model_SPD, "SPD", sparkSession, selectPredictions = false).cache()
+    val mongoData_SPD_lab = createRDDWithDocument(trained_model_SPD, "SPD", selectPredictions = false).cache()
     mongoData_SPD_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
     println("Data for 'SPD' saved to DB")
 
-    val mongoData_FDP_pred = createRDDWithDocument(trained_model_FDP, "FDP", sparkSession, selectPredictions = true).cache()
+    val mongoData_FDP_pred = createRDDWithDocument(trained_model_FDP, "FDP", selectPredictions = true).cache()
     mongoData_FDP_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_FDP_lab = createRDDWithDocument(trained_model_FDP, "FDP", sparkSession, selectPredictions = false).cache()
+    val mongoData_FDP_lab = createRDDWithDocument(trained_model_FDP, "FDP", selectPredictions = false).cache()
     mongoData_FDP_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
     println("Data for 'FDP' saved to DB")
 
-    val mongoData_AfD_pred = createRDDWithDocument(trained_model_AfD, "AfD", sparkSession, selectPredictions = true).cache()
+    val mongoData_AfD_pred = createRDDWithDocument(trained_model_AfD, "AfD", selectPredictions = true).cache()
     mongoData_AfD_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_AfD_lab = createRDDWithDocument(trained_model_AfD, "AfD", sparkSession, selectPredictions = false).cache()
+    val mongoData_AfD_lab = createRDDWithDocument(trained_model_AfD, "AfD", selectPredictions = false).cache()
     mongoData_AfD_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
     println("Data for 'AfD' saved to DB")
 
-    val mongoData_Die_Gruenen_pred = createRDDWithDocument(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession, selectPredictions = true).cache()
+    val mongoData_Die_Gruenen_pred = createRDDWithDocument(trained_model_Die_Gruenen, "Die_Gruenen", selectPredictions = true).cache()
     mongoData_Die_Gruenen_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_Die_Gruenen_lab = createRDDWithDocument(trained_model_Die_Gruenen, "Die_Gruenen", sparkSession, selectPredictions = false).cache()
+    val mongoData_Die_Gruenen_lab = createRDDWithDocument(trained_model_Die_Gruenen, "Die_Gruenen", selectPredictions = false).cache()
     mongoData_Die_Gruenen_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
-    println("Model for 'Die_Gruenen' saved to DB")
+    println("Data for 'Die_Gruenen' saved to DB")
 
-    val mongoData_Die_Linke_pred = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", sparkSession, selectPredictions = true).cache()
+    val mongoData_Die_Linke_pred = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", selectPredictions = true).cache()
     mongoData_Die_Linke_pred.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_predictions?authSource=examples"))))
-    val mongoData_Die_Linke_lab = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", sparkSession, selectPredictions = false).cache()
+    val mongoData_Die_Linke_lab = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", selectPredictions = false).cache()
     mongoData_Die_Linke_lab.saveToMongoDB(WriteConfig(Map("uri" -> (sys.env("REAGENT_MONGO") + "examples.ml_party_reputation_labels?authSource=examples"))))
-    println("Model for 'Die_Linke' saved to DB")
+    println("Data for 'Die_Linke' saved to DB")
 
     sparkSession.stop()
     // If 'Goodbye' was printed, the programm had finished successfully
@@ -150,22 +152,21 @@ object Main {
   /**
    * Transforms the dataframe with the model to a RDD with party, dates & sentiments
    *
-   * @param model dataframe with trained model
-   * @param party party of the model
-   * @param sparkSession sparksession-object
+   * @param model Dataframe with trained model
+   * @param party Party of the model
    * @param selectPredictions If true, predictions will be selected,
    *                          if false, the original sentiment values ("label") will be selected
    * @return RDD with Document-objects, so saveToMongoDB() can be called
    */
-  def createRDDWithDocument(model:DataFrame, party:String, sparkSession: SparkSession, selectPredictions:Boolean):RDD[Document] = {
+  def createRDDWithDocument(model:DataFrame, party:String, selectPredictions:Boolean):RDD[Document] = {
     val dates = model.select("dateformats").collect().map(_(0).toString).toList
     var values:List[Double] = List()
     if(selectPredictions) values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     else values = model.select("label").collect().map(_(0).asInstanceOf[Double]).toList
 
-    val document = new Document("Partei", party).append("dates", dates.asJava).append("values", values.asJava)
+    val document = new Document("party", party).append("dates", dates.asJava).append("values", values.asJava)
     val seq = Seq(document)
-    sparkSession.sparkContext.parallelize(seq)
+    SparkContext.getOrCreate().parallelize(seq)
   }
 }
 

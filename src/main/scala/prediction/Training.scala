@@ -13,9 +13,9 @@ import org.apache.spark.sql.{DataFrame, SparkSession, functions}
  * Use the Spark-ML pipeline for training
  * See for more information: https://spark.apache.org/docs/latest/ml-pipeline.html
  * @param raw_data Raw data for Training with several possible parties
- * @param ss SparkSession-object
+ * @param sparkSession SparkSession-object
  */
-class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
+class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
 
   //Possible parties: "CDU", "SPD", "FDP", "AfD", "Die_Gruenen", "Die_Linke"
   val data_CDU: RDD[TrainingTweet] = prepareData(raw_data, "CDU").cache()
@@ -59,8 +59,7 @@ class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
    * Create Dataframe from RDD, transform the data and pass it to the estimater (LinearRegression)
    * @param rdd TrainingData of one specific party
    * @return Model as dataframe-object with columns:
-   *         "features", "dateformats", "label","features_squared", "features_cubic"
-   *         "transformed_features", "prediction"
+   *         "features", "dateformats", "label", "transformed_features", "prediction"
    */
   def trainModel(rdd:RDD[TrainingTweet]):DataFrame = {
     if (rdd.isEmpty()) throw new Error("Training not possible, RDD is empty")
@@ -69,18 +68,21 @@ class Training(raw_data:RDD[TrainingTweet], ss:SparkSession) {
     //(Double, Date, Double)
 
     //Create Dataframe from RDD
-    val df = ss.createDataFrame(relevantData)
+    val df = sparkSession.createDataFrame(relevantData)
       .withColumnRenamed("_1", "features")
       .withColumnRenamed("_2", "dateformats")
-      .withColumnRenamed("_3", "label") //sentiments
-      .withColumn("features_squared", functions.pow( col("features"), lit(2) ))
-      .withColumn("features_cubic", functions.pow( col("features"), lit(3) ))
+      .withColumnRenamed("_3", "label") //original sentiments
+      //Don´t do this, for this app only a linear function is needed,
+      //Increasing the model complexity will just lead to overfitting
+      //.withColumn("features_squared", functions.pow( col("features"), lit(2) ))
+      //.withColumn("features_cubic", functions.pow( col("features"), lit(3) ))
       .cache()
 
     //Transformer
-    //Model: y = a*x^3 + b*x^2 + c*x + d
+    //Old Model: y = a*x^3 + b*x^2 + c*x + d
+    //New Model: y = a*x + b
     val transformedData = new VectorAssembler()
-      .setInputCols(Array("features", "features_squared", "features_cubic"))
+      .setInputCols(Array("features"))
       .setOutputCol("transformed_features")
       .transform(df)
       .cache()
@@ -151,7 +153,7 @@ object Training {
    * Analyse wether the party reputations had increased or decreased
    * @param df Dataframe with trained model
    * @return True, if sentiment values are increasing
-   *         False, if sentiment values are decreasing
+   *         False, if sentiment values are decreasing or constant
    */
   def trendAnalyse(df:DataFrame):Boolean = {
     val predictions = df.select("prediction")
