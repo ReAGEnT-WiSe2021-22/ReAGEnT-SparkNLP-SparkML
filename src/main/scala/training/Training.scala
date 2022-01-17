@@ -156,7 +156,7 @@ object Training {
    *         False, if sentiment values are decreasing or constant
    */
   def trendAnalyse(df:DataFrame):Boolean = {
-    val predictions = df.select("training")
+    val predictions = df.select("prediction")
       .rdd
       .map(x => x(0).asInstanceOf[Double])
       .collect()

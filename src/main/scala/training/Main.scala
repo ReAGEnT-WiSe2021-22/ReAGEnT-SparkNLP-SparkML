@@ -170,7 +170,7 @@ object Main {
   def createRDDWithDocument(model:DataFrame, party:String, selectPredictions:Boolean):RDD[Document] = {
     val dates = model.select("dateformats").collect().map(_(0).toString).toList
     var values:List[Double] = List()
-    if(selectPredictions) values = model.select("training").collect().map(_(0).asInstanceOf[Double]).toList
+    if(selectPredictions) values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
     else values = model.select("label").collect().map(_(0).asInstanceOf[Double]).toList
 
     val document = new Document("party", party).append("dates", dates.asJava).append("values", values.asJava)
@@ -191,7 +191,7 @@ object Main {
     var file:String = ""
 
     if(selectPredictions) {
-      values = model.select("training").collect().map(_(0).asInstanceOf[Double]).toList
+      values = model.select("prediction").collect().map(_(0).asInstanceOf[Double]).toList
       file = "trained_model_predictions.json"
     }
     else {

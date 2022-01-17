@@ -80,5 +80,5 @@ object TwitterUtilities {
    * @param date Date field of tweet
    * @return LocalDateTime object
    */
-  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date, dtf)
+  def transformTwitterDate(date:String):LocalDate = LocalDate.parse(date.take(10), dtf)
 }
