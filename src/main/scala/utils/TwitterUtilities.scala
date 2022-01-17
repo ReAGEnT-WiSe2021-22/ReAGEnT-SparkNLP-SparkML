@@ -3,7 +3,7 @@ package utils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.sql.Date
-import prediction.TrainingTweet
+import training.TrainingTweet
 
 import scala.util.Random
 
@@ -46,7 +46,7 @@ object TwitterUtilities {
               case _ => "Parteilos"
             }
 
-            val randgen= new Random()
+            //You need to increase the heap memory in your IDE (over 2GB) to run this code
             val tweet_ = TrainingTweet(party, text, Date.valueOf(date), SentimentAnalysisUtils.detectSentiment(text) )
 
             Option(tweet_)

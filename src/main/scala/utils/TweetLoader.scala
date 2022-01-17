@@ -2,7 +2,7 @@ package utils
 
 import org.apache.spark.rdd.RDD
 import org.bson.Document
-import prediction.TrainingTweet
+import training.TrainingTweet
 
 import java.sql.Date
 import java.time.LocalDate
