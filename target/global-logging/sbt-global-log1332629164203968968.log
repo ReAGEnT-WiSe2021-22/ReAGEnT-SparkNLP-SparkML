@@ -1,0 +1,21 @@
+[debug] > Exec(compile, None, None)
+[debug] Evaluating tasks: Compile / compile
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
+[info] compiling 25 Scala sources to C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\target\scala-2.12\classes ...
+[info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.14. Compiling...
+[info]   Compilation completed in 8.136s.
+[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:23: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
+[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
+[warn]                       ^
+[warn] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\MyTweet.scala:76:65: non-variable type argument String in type pattern scala.collection.immutable.Map[String,Any] (the underlying of Map[String,Any]) is unchecked since it is eliminated by erasure
+[warn]         case (Some(d: Map[String, Any]), Some(u: List[Any]), e: Map[String, Any], f: String) => {
+[warn]                                                                 ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\ReAGEnT-API-Wrapper-main\src\main\scala\twitter\TwitterConnectionImpl.scala:43:106: Unit does not take parameters
+[error]           case e: Exception => println("Connection lost . . . leaving wrapper"); ReAGEnT_API_Wrapper.stop()
+[error]                                                                                                          ^
+[warn] two warnings found
+[error] one error found
+[error] (Compile / compileIncremental) Compilation failed
+[error] Total time: 510 s (08:30), completed 02.11.2021, 22:30:51
+[debug] > Exec(idea-shell, None, None)

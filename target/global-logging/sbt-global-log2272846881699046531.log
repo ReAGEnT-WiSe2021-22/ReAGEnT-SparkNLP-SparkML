@@ -1,0 +1,41 @@
+[debug] > Exec(compile, None, None)
+[debug] Evaluating tasks: Compile / compile
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
+[info] compiling 10 Scala sources to C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\target\scala-2.12\classes ...
+[info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.14. Compiling...
+[info]   Compilation completed in 8.517s.
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoForEachWriter.scala:8:8: not found: object twitter
+[error] import twitter.MyTweet
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoForEachWriter.scala:29:25: not found: value MyTweet
+[error]             val tweet = MyTweet.createTweetFromRow(row)
+[error]                         ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:12:8: not found: object parser
+[error] import parser.{Converter, TweetLast}
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:16:36: not found: type Converter
+[error] class MongoUpdateWriter(converter: Converter, dbName: String, collection: String, user: String, pwd: String) extends ForeachWriter[Row] {
+[error]                                    ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:30:35: not found: value TweetLast
+[error]           var current: Document = TweetLast("combined", new util.ArrayList[String]()).toDocument
+[error]                                   ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:46:13: not found: value TweetLast
+[error]             TweetLast(current.get("_id").toString, currentTweets).toDocument,
+[error]             ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:56:35: not found: value TweetLast
+[error]           var current: Document = TweetLast(converter.rowToParser(value).toDocument.get("_id").toString, new util.ArrayList[String]()).toDocument
+[error]                                   ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpdateWriter.scala:73:13: not found: value TweetLast
+[error]             TweetLast(current.get("_id").toString, currentTweets).toDocument,
+[error]             ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpsertWriter.scala:3:8: not found: object parser
+[error] import parser.Converter
+[error]        ^
+[error] C:\Users\eduar\Desktop\MeinZeug\HTW\Semester5\Projektstudium\GitHub\ReAGEnT-SparkNLP-SparkML\src\main\scala\utils\MongoUpsertWriter.scala:14:36: not found: type Converter
+[error] class MongoUpsertWriter(converter: Converter, dbName:String, collection: String, user:String, pwd: String) extends ForeachWriter[Row] {
+[error]                                    ^
+[error] 10 errors found
+[error] (Compile / compileIncremental) Compilation failed
+[error] Total time: 29 s, completed 13.12.2021 18:42:37
+[debug] > Exec(idea-shell, None, None)
