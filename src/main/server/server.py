@@ -2,8 +2,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 from pymongo import MongoClient
 from bson.json_util import dumps
-
-klient=MongoClient(os.getenv("REAGENT_MONGO"))
+klientString=os.getenv("")
+klient=MongoClient(os.getenv("REAGENT_MONGO")+"?authSource=examples")
 db=klient["examples"]
 labels=db["ml_party_reputation_labels"]
 predictions=db["ml_party_reputation_predictions"]
