@@ -11,7 +11,7 @@ The model, as well as the real sentiment values for each day, will be saved to t
 
 The model contains: party: String, dates: List[String], sentiments: List[Double]
 
-##Prerequisites
+##Prerequisites:
 
 - The URI for the DB has to be defined in the system environment variables as `REAGENT_MONGO`
 - Tweets will be loaded from the collection: `political_tweets_2021`
