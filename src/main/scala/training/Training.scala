@@ -12,11 +12,9 @@ import org.apache.spark.sql.{DataFrame, SparkSession, functions}
 /**
  * Use the Spark-ML pipeline for training
  * See for more information: https://spark.apache.org/docs/latest/ml-pipeline.html
- * @param raw_data Raw data for Training with several possible parties
- * @param sparkSession SparkSession-object
  */
-class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
-
+object Training {
+  /*
   //Possible parties: "CDU", "SPD", "FDP", "AfD", "Die_Gruenen", "Die_Linke"
   val data_CDU: RDD[TrainingTweet] = prepareData(raw_data, "CDU").cache()
   val data_SPD: RDD[TrainingTweet] = prepareData(raw_data, "SPD").cache()
@@ -24,7 +22,7 @@ class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
   val data_AfD: RDD[TrainingTweet] = prepareData(raw_data, "AfD").cache()
   val data_Die_Gruenen: RDD[TrainingTweet] = prepareData(raw_data, "Die_Gruenen").cache()
   val data_Die_Linke: RDD[TrainingTweet] = prepareData(raw_data, "Die_Linke").cache()
-
+*/
 
   /**
    * First filter by a specific party
@@ -37,19 +35,19 @@ class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
    *
    * For the new TrainingTweet object, the  text of the "head" tweet will be used, since the text is irrelevant
    *
-   * @param rdd RDD with training tweets
+   * @param rdd   RDD with training tweets
    * @param party to filter for
    * @return RDD with average sentiment values per day for a specific party
    */
-  def prepareData(rdd:RDD[TrainingTweet], party:String):RDD[TrainingTweet] = {
-    if(rdd.isEmpty()) throw new Error("No preparation possible, RDD is empty")
+  def prepareData(rdd: RDD[TrainingTweet], party: String): RDD[TrainingTweet] = {
+    if (rdd.isEmpty()) throw new Error("No preparation possible, RDD is empty")
 
     rdd.filter(x => x.party.equals(party))
       .groupBy(x => x.date) //RDD[(Date, Iterable[TrainingTweet])]
       .map(tweetsWithSameCreationDate => {
         val head = tweetsWithSameCreationDate._2.head
         val sentiments = tweetsWithSameCreationDate._2.map(_.sentiment)
-        val average = sentiments.sum/sentiments.size
+        val average = sentiments.sum / sentiments.size
         TrainingTweet(party, head.text, head.date, average)
       })
       .sortBy(x => x.date.toLocalDate.toEpochDay)
@@ -57,18 +55,20 @@ class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
 
   /**
    * Create Dataframe from RDD, transform the data and pass it to the estimater (LinearRegression)
+   *
    * @param rdd TrainingData of one specific party
    * @return Model as dataframe-object with columns:
    *         "features", "dateformats", "label", "transformed_features", "prediction"
    */
-  def trainModel(rdd:RDD[TrainingTweet]):DataFrame = {
+  def trainModel(rdd: RDD[TrainingTweet]): DataFrame = {
     if (rdd.isEmpty()) throw new Error("Training not possible, RDD is empty")
 
-    val relevantData = rdd.map(x => ( Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment))
+    val relevantData = rdd.map(x => (Training.downsize(x.date.toLocalDate.toEpochDay), x.date, x.sentiment))
     //(Double, Date, Double)
 
     //Create Dataframe from RDD
-    val df = sparkSession.createDataFrame(relevantData)
+    val spark = SparkSession.getActiveSession.get
+    val df = spark.createDataFrame(relevantData)
       .withColumnRenamed("_1", "features")
       .withColumnRenamed("_2", "dateformats")
       .withColumnRenamed("_3", "label") //original sentiments
@@ -117,50 +117,50 @@ class Training(raw_data:RDD[TrainingTweet], sparkSession:SparkSession) {
 
     result_model
   }
-}
 
-/**
- * Object with helper functions
- */
-object Training {
 
-  def getSentiments(rdd:RDD[TrainingTweet]):Array[Double] = {
+  // --- Helper functions --- //
+
+  def getSentiments(rdd: RDD[TrainingTweet]): Array[Double] = {
     if (rdd.isEmpty()) throw new Error("No sentiment values found, RDD is empty")
-      rdd.map(tweet => tweet.sentiment).collect()
-    }
+    rdd.map(tweet => tweet.sentiment).collect()
+  }
 
-  def getDates(rdd:RDD[TrainingTweet]):Array[Double] = {
+  def getDates(rdd: RDD[TrainingTweet]): Array[Double] = {
     if (rdd.isEmpty()) throw new Error("No Dates found, RDD is empty")
-    rdd.map( tweet => downsize(tweet.date.toLocalDate.toEpochDay) ).collect()
+    rdd.map(tweet => downsize(tweet.date.toLocalDate.toEpochDay)).collect()
   }
 
   /**
    * Long values of the dates are all over 10000, so they will be downsized for convenience
+   *
    * @param value Date as long value
    * @return Date as downsized double value
    */
-  def downsize(value:Long):Double = value / 1000.0
+  def downsize(value: Long): Double = value / 1000.0
 
   /**
    * @param amount How many tweets should be printed
    */
-  def printData(rdd:RDD[TrainingTweet], amount:Int = 10):Unit = {
-    if (rdd.isEmpty())throw new Error("Printing not possible, RDD is empty")
+  def printData(rdd: RDD[TrainingTweet], amount: Int = 10): Unit = {
+    if (rdd.isEmpty()) throw new Error("Printing not possible, RDD is empty")
     rdd.take(amount).foreach(println)
   }
 
   /**
    * Analyse whether the party reputations had increased or decreased
+   *
    * @param df Dataframe with trained model
    * @return True, if sentiment values are increasing
    *         False, if sentiment values are decreasing or constant
    */
-  def trendAnalyse(df:DataFrame):Boolean = {
+  def trendAnalyse(df: DataFrame): Boolean = {
     val predictions = df.select("prediction")
       .rdd
       .map(x => x(0).asInstanceOf[Double])
       .collect()
 
     predictions.head < predictions.last
+
   }
 }
