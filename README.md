@@ -18,5 +18,6 @@ The model contains: party:String, dates:List[String], sentiments:List[Double]
   
 - Run the programm with `sbt run`
 
+Server: Run with "python ./src/main/server/server.py". Listens on Port 8123 by default
 -------------------
 ## Potential Party:
