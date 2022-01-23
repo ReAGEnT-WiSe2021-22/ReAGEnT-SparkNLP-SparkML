@@ -3,6 +3,10 @@ package utils
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
+
+/**
+ * Provides methods for reading text files and loading them into RDD´s
+ */
 object IOUtils {
 
   /**

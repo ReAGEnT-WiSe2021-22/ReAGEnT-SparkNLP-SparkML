@@ -10,7 +10,6 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
  * Currently uses the jackson library to accomplish this and acts as a wrapper around it.
  *
  * jackson is a dependency of spark and also used internally by spark
- *
  */
 object JSONUtils {
   private val mapper = new ObjectMapper with ScalaObjectMapper

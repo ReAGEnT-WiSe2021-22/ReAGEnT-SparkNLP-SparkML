@@ -3,8 +3,8 @@ package training
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.mongodb.spark.{MongoSpark, toDocumentRDDFunctions}
 import com.mongodb.spark.config.WriteConfig
-import org.apache.spark.{SparkConf, SparkContext}
-import utils.{IOUtils, TrainingVisualizer, TweetLoader, TwitterUtilities}
+import org.apache.spark.SparkContext
+import utils.TweetLoader
 import org.apache.spark.rdd.RDD
 import org.bson.Document
 
@@ -13,15 +13,17 @@ import scala.collection.JavaConverters._
 
 
 /**
- * At first political tweets from 2021 will be loaded from the database
- * Then the tweets will be prepared and handed over to the training
- * During the training, for each date a prediction will be calculated, everything will be saved in a dataframe
- * At the end the dataframes with models (for each party) will be written to the database
+ * Class which uses machine learning to analyze the reputation of German political parties in 2021
+ * At first the tweets will be loaded from the database collection "political_tweets_2021" which contains all required tweets
+ * Then the tweets will be prepared and then handed over to the training
+ * For each party, there will be an own training
+ * During the training, for each date a prediction will be calculated, every model will be saved in dataframe-object
+ * At the end the dataframes with models will be written to the database
  *
  * Dates & predictions will be written to the collection: ml_party_reputation_predictions
  * Dates & original sentiment values (labels) will be written to the collections: ml_party_reputation_labels
  *
- * For some testing a visualization was added which isn´t needed after deployment
+ * @author Schander 572893
  */
 object Main {
 
@@ -45,13 +47,14 @@ object Main {
 
     // Create SparkContext
     val sc = spark.sparkContext
-    val rdd = MongoSpark.load(sc).rdd.cache() //RDD[Document]
+    val rdd:RDD[Document] = MongoSpark.load(sc).rdd.cache()
 
+    println("##### TweetLoader  #####")
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
-    println("##### TweetLoader finished #####")
 
 
     println("##### Preparation of data #####")
+    //Possible parties: "CDU", "SPD", "FDP", "AfD", "Die_Gruenen", "Die_Linke"
     val data_CDU = Training.prepareData(trainingData, "CDU").cache()
     val data_SPD = Training.prepareData(trainingData, "SPD").cache()
     val data_FDP = Training.prepareData(trainingData, "FDP").cache()
@@ -76,7 +79,6 @@ object Main {
     println("Increased reputation Die_Linke: " + Training.trendAnalyse(trained_model_Die_Linke))
 
 
-
     val mongoData_CDU_pred = createRDDWithDocument(trained_model_CDU, "CDU", selectPredictions = true).cache()
     val mongoData_CDU_lab = createRDDWithDocument(trained_model_CDU, "CDU", selectPredictions = false).cache()
 
@@ -96,7 +98,7 @@ object Main {
     val mongoData_Die_Linke_lab = createRDDWithDocument(trained_model_Die_Linke, "Die_Linke", selectPredictions = false).cache()
 
 
-    // Load models into MongoDB, collection: "ml_party_reputation_predictions & ml_party_reputation_labels"
+    // Load models into MongoDB collections: "ml_party_reputation_predictions & ml_party_reputation_labels"
     val mongoData_predictions = mongoData_CDU_pred
       .union(mongoData_SPD_pred)
       .union(mongoData_FDP_pred)
@@ -145,7 +147,6 @@ object Main {
     println("Goodbye")
   }
 
-  //Helper methods
   /**
    * Transforms the dataframe with the model to a RDD with party, dates & sentiments
    *

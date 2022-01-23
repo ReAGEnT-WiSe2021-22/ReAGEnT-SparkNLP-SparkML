@@ -10,6 +10,9 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
+/**
+ * Class that uses the sentiment tool of StandfordCoreNLP to detect sentiment values of strings
+ */
 object SentimentAnalysisUtils  {
 
   val nlpProps: Properties = {
