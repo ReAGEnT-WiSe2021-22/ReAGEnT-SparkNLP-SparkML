@@ -30,10 +30,8 @@ class myHandler(BaseHTTPRequestHandler):
             if i != predictioncount:
                 predictionstring+=","
             predictionstring+="]"
-        self.wfile.write(labelstring.encode("utf-8"))
-        self.wfile.write(predictionstring.encode("utf-8"))
-
-
+        combinedString=("["+labelstring +","+predictionstring+"]")
+        self.wfile.write(combinedString.encode("utf-8"))
 
 def main():
     port=8123
