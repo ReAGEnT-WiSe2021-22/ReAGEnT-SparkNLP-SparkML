@@ -5,16 +5,16 @@ import java.sql.Date
 /**
  * Model of tweet that will be used for Training
  * @param party party that was mentioned in the tweet
- * @param text text of the tweet (unchanged) (maybe the text can be removed later, since it´s not used)
  * @param date date when tweet was created at
  * @param sentiment sentiment value of the tweet text
+ *
+ * @author Schander 572893
  */
-case class TrainingTweet(party:String, text:String, date:Date, sentiment:Double) {
+case class TrainingTweet(party:String, date:Date, sentiment:Double) {
 
   override def toString:String = {
-    "party: " + party + sys.props("line.separator") +
-    "text: " + text + sys.props("line.separator") +
-    "date: " + date.toString + sys.props("line.separator") +
-    "sentiment: " + sentiment + sys.props("line.separator")
+    "party: " + party + System.lineSeparator() +
+    "date: " + date.toString + System.lineSeparator() +
+    "sentiment: " + sentiment + System.lineSeparator()
   }
 }

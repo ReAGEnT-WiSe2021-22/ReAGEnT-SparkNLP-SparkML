@@ -8,6 +8,8 @@ import javax.swing.{JFrame, WindowConstants}
 
 /**
  * Helper class to visualize the training data and models
+ *
+ * @author Schander 572893
  */
 object TrainingVisualizer {
 
@@ -49,6 +51,10 @@ object TrainingVisualizer {
     frame
   }
 
+  /**
+   * Disposes given JFrame-object
+   * @param frame Open JFrame
+   */
   def disposeFrame(frame: JFrame): Unit = {
     frame.setVisible(false)
     frame.dispose()

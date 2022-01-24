@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter
 
 /**
  * Class that provides methods to filter needed attributes from tweets and create a RDD with TrainingTweet-objects
+ *
+ * @author Schander 572893
  */
 object TweetLoader {
   val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -50,10 +52,8 @@ object TweetLoader {
    */
   def prepareTweets(rdd: RDD[Document]): RDD[TrainingTweet] = {
     rdd.map(x => {
-      val text = getText(x)
-      val sentiment = SentimentAnalysisUtils.detectSentiment(text)
-
-      TrainingTweet(getParty(x), text, getDate(x), sentiment)
+      val sentiment = SentimentAnalysisUtils.detectSentiment(getText(x))
+      TrainingTweet(getParty(x), getDate(x), sentiment)
     })
   }
 }

@@ -7,7 +7,11 @@ import training.TrainingTweet
 
 import scala.util.Random
 
-
+/**
+ * Class with helper method to parse JSON Strings into TrainingTweet-objects
+ *
+ * @author Schander 572893
+ */
 object TwitterUtilities {
 
   /**
@@ -47,7 +51,7 @@ object TwitterUtilities {
             }
 
             //You need to increase the heap memory in your IDE (over 2GB) to run this code
-            val tweet_ = TrainingTweet(party, text, Date.valueOf(date), SentimentAnalysisUtils.detectSentiment(text) )
+            val tweet_ = TrainingTweet(party, Date.valueOf(date), SentimentAnalysisUtils.detectSentiment(text) )
 
             Option(tweet_)
           }
