@@ -13,8 +13,8 @@ import java.sql.Date
 case class TrainingTweet(party:String, date:Date, sentiment:Double) {
 
   override def toString:String = {
-    "party: " + party + sys.props("line.separator") +
-    "date: " + date.toString + sys.props("line.separator") +
-    "sentiment: " + sentiment + sys.props("line.separator")
+    "party: " + party + System.lineSeparator() +
+    "date: " + date.toString + System.lineSeparator() +
+    "sentiment: " + sentiment + System.lineSeparator()
   }
 }

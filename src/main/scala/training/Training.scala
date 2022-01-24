@@ -44,7 +44,7 @@ object Training {
   }
 
   /**
-   * Create Dataframe from RDD, transform the data and pass it to the estimater (LinearRegression)
+   * Transform the data and pass it to the estimater (LinearRegression)
    *
    * @param rdd TrainingData of one specific party
    * @return Model as dataframe-object with columns:
@@ -61,7 +61,7 @@ object Training {
     val df = spark.createDataFrame(relevantData)
       .withColumnRenamed("_1", "features")
       .withColumnRenamed("_2", "dateformats")
-      .withColumnRenamed("_3", "label") //original sentiments
+      .withColumnRenamed("_3", "label") //original sentiment values
       .cache()
 
     //Transformer

@@ -14,14 +14,20 @@ import scala.collection.JavaConverters._
 
 /**
  * Class which uses machine learning to analyze the reputation of German political parties in 2021
- * At first the tweets will be loaded from the database collection "political_tweets_2021" which contains all required tweets
+ * At first, the tweets will be loaded from the database collection "political_tweets_2021" which contains
+ * all collected tweets from 2021
  * Then the tweets will be prepared and then handed over to the training
- * For each party, there will be an own training
- * During the training, for each date a prediction will be calculated, every model will be saved in dataframe-object
+ * For each party there will be an independent training
+ * During the training, for each date a prediction will be calculated, every model will be saved as a dataframe-object
  * At the end the dataframes with models will be written to the database
  *
  * Dates & predictions will be written to the collection: ml_party_reputation_predictions
  * Dates & original sentiment values (labels) will be written to the collections: ml_party_reputation_labels
+ *
+ *
+ * One trained model represents a linear graph, that will either increase, decrease or stay constant
+ * This in turn represents whether the reputation of a certain party has improved or not in 2021,
+ * according to the collected tweets
  *
  * @author Schander 572893
  */
@@ -49,7 +55,7 @@ object Main {
     val sc = spark.sparkContext
     val rdd:RDD[Document] = MongoSpark.load(sc).rdd.cache()
 
-    println("##### TweetLoader  #####")
+    println("##### TweetLoader #####")
     val trainingData:RDD[TrainingTweet] = TweetLoader.prepareTweets(rdd).cache()
 
 
