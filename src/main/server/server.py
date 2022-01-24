@@ -29,7 +29,7 @@ class myHandler(BaseHTTPRequestHandler):
             predictionstring+=dumps(prediction)
             if i != predictioncount:
                 predictionstring+=","
-            predictionstring+="]"
+        predictionstring+="]"
         combinedString=("["+labelstring +","+predictionstring+"]")
         self.wfile.write(combinedString.encode("utf-8"))
 
