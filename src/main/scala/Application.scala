@@ -21,7 +21,7 @@ object Application {
     /*
       Loading the data
 
-      if useLocalTweets is false: sparkSession needs connection to database on production
+      if useLocalTweets is false: sparkSession needs connection to database on production VM
      */
     var tweetDF:DataFrame = null
     val useLocalTweets = true
@@ -42,21 +42,23 @@ object Application {
 
     println("Tweets loaded.")
 
-    //Preprocessing
+
+    //PREPROCESSING
     val result = new Preprocessing(tweetDF).getResult()
     //transform preprocessing result into Tweets
-    val cleanTweetsRDD = result.as[Tweet].rdd
+    val cleanTweetsRDD = sc.parallelize(result.as[Tweet].rdd.take(2000))
 
     println("Preprocessed.")
-    cleanTweetsRDD.take(5).foreach(f => println(f))
+    //cleanTweetsRDD.take(5).foreach(f => println(f))
 
-    //Sentiment Analysis
+
+    //SENTIMENT ANALYSIS
     val tweetsWithSentiment = TwitterUtils.applySentimentToTweets(cleanTweetsRDD)
     val tweetsWithSentimentDF = tweetsWithSentiment.toDF()
 
     println(tweetsWithSentiment.count)
-    println(tweetsWithSentiment.map(x => (x.cleanText, x.sentiment)).filter(_._2 != 2.0).count)
-    if(true) IOUtils.DataFrameToJsonFile(tweetsWithSentimentDF, "tweets_clean", true)
+    tweetsWithSentiment.map(_.sentiment).groupBy(identity).mapValues(_.size).foreach(f => println(f))
+    if(safeTweets) IOUtils.DataFrameToJsonFile(tweetsWithSentimentDF, "tweets_clean", true)
 
     println("Added Sentiment.")
 

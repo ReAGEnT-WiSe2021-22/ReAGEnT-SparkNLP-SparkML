@@ -21,7 +21,7 @@ object SentimentAnalysis {
   }
 
   val nlpPropsGerman: Properties = {
-    val input = getClass.getResourceAsStream("/german.properties")
+    val input = getClass.getResourceAsStream("german.properties")
     val prop = new Properties()
     prop.load(input)
     prop
