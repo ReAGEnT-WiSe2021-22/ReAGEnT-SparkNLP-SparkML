@@ -27,9 +27,9 @@ object SentimentAnalysis {
     prop
   }
 
-  def detectSentiment(message: String): Double = {
+  val pipeline = new StanfordCoreNLP(nlpPropsGerman)
 
-    val pipeline = new StanfordCoreNLP(nlpPropsGerman)
+  def detectSentiment(message: String): Double = {
 
     val annotation = pipeline.process(message)
     var sentiments: ListBuffer[Double] = ListBuffer()
@@ -54,11 +54,6 @@ object SentimentAnalysis {
       //      println("debug: " + sentiment)
       //      println("size: " + partText.length)
     }
-import edu.stanford.nlp.ling.CoreAnnotations
-import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations
-import edu.stanford.nlp.pipeline.StanfordCoreNLP
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
-import org.apache.spark.rdd.RDD
 
     val weightedSentiments = (sentiments, sizes).zipped.map((sentiment, size) => sentiment * size)
     var weightedSentiment = weightedSentiments.sum / (sizes.fold(0)(_ + _))
@@ -98,9 +93,6 @@ import org.apache.spark.rdd.RDD
     weightedSentiment
   }
 
-//  def getTfidfScore(tweets:RDD[Tweet]) = RDD[Vector] {
-//    ???
-//  }
 
   trait SENTIMENT_TYPE
 

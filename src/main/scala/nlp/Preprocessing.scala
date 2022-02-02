@@ -5,7 +5,7 @@ import com.johnsnowlabs.nlp.annotators.{LemmatizerModel, Normalizer, StopWordsCl
 import com.johnsnowlabs.nlp.base.{DocumentAssembler, Finisher}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Encoders}
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 import utils.IOUtils
 import domain.Tweet
@@ -25,7 +25,7 @@ class Preprocessing(data:DataFrame) {
     .setInputCols("sentence")
     .setOutputCol("token")
 
-  val stopwords = IOUtils.RDDFromFile("german_stopwords_short").collect
+  val stopwords = IOUtils.RDDFromFile("german_stopwords_full").collect
   private val stopwordCleaner = new StopWordsCleaner()
     .setInputCols("token")
     .setOutputCol("stopwordClean")
@@ -38,6 +38,7 @@ class Preprocessing(data:DataFrame) {
     //hexcode for german vowels: http://www.javascripter.net/faq/accentedcharacters.htm
     .setCleanupPatterns(Array("""[^a-zA-Z\xE4\xF6\xFC\xC4\xD6\xDC\xDF\s]""", "^http.*"))
     .setLowercase(true)
+    .setMinLength(2)
 
   private val lemmatizer = LemmatizerModel.load("src/main/resources/lemma_dict_ger_johnsnowlabs")
     .setInputCols("normalized")
@@ -82,6 +83,14 @@ class Preprocessing(data:DataFrame) {
         "text",
         "cleanText",
         "sentiment")
+  }
+
+  def filterUnnecessaryTweets(tweets:DataFrame):DataFrame = {
+    ???
+  }
+
+  def filterTweetsWithMinSize(tweets:DataFrame, size:Int):DataFrame = {
+    ???
   }
 
 }

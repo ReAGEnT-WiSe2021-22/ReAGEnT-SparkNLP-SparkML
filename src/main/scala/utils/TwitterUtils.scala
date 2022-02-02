@@ -2,7 +2,9 @@ package utils
 
 import domain.Tweet
 import nlp.SentimentAnalysis
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
 import org.bson.Document
 
 import java.sql.Timestamp
@@ -13,20 +15,40 @@ import scala.collection.JavaConverters._
 
 object TwitterUtils {
 
+  def applySentimentToTweets(tweets: RDD[Tweet]): RDD[Tweet]= {
+
+    val tweetsWithSentiment = tweets.map(tweet =>
+      Tweet(
+        tweet.tweetID,
+        tweet.createdAt,
+        tweet.userID,
+        tweet.userName,
+        tweet.name,
+        tweet.party,
+        tweet.hashtags,
+        tweet.text,
+        tweet.cleanText,
+        SentimentAnalysis.detectSentiment(tweet.cleanText.mkString)
+      )
+    )
+
+    tweetsWithSentiment
+  }
+
   def parseDocumentToTweet(rdd: RDD[Document]): RDD[Tweet] = {
     rdd.map(entry => {
-      val text = entry.get("text").asInstanceOf[String]
+      val text = entry.get("tweet").asInstanceOf[String]
       Tweet(
         getLong(entry.get("id")).get,
-        getTwitterDate(entry.get("createdDate").asInstanceOf[String]),
+        getTwitterDate(entry.get("created_at").asInstanceOf[String]),
         getLong(entry.get("user_id")).get,
         entry.get("username").asInstanceOf[String],
         entry.get("name").asInstanceOf[String],
-        entry.get("party").asInstanceOf[String],
+        entry.get("partei").asInstanceOf[String],
         entry.get("hashtags").asInstanceOf[java.util.List[String]].asScala.toList,
         text,
         Nil,
-        SentimentAnalysis.detectSentiment(text)
+        0.0 //NOT UNDERSTOOD value for sentiment analysis
       )
     })
   }

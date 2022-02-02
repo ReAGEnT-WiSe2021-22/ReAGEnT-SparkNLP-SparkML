@@ -1,1 +1,8 @@
+#target folder
 .target/
+
+#tweet data
+party_prediction/src/main/resources/tweets_raw
+party_prediction/src/main/resources/tweets_raw_long
+
+

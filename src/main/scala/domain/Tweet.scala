@@ -12,5 +12,9 @@ case class Tweet(
                   hashtags:List[String],
                   text:String,
                   cleanText:List[String],
-                  sentiment:Double
-                )
+                  var sentiment:Double
+                ){
+  def setSentiment(sentiment:Double): Unit = {
+    this.sentiment = sentiment
+  }
+}
