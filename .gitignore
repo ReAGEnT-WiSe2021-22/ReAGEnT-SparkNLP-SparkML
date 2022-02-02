@@ -1,5 +1,5 @@
 #target folder
-.target/
+party_prediction/target
 
 #tweet data
 party_prediction/src/main/resources/tweets_raw
