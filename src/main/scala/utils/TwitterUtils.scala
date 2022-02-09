@@ -28,7 +28,7 @@ object TwitterUtils {
         tweet.hashtags,
         tweet.text,
         tweet.cleanText,
-        SentimentAnalysis.detectSentiment(tweet.cleanText.mkString)
+        SentimentAnalysis.detectSentiment(tweet.cleanText.mkString(" "))
       )
     )
 

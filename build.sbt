@@ -16,4 +16,7 @@ libraryDependencies ++= Seq(
   //Sentiment
   "edu.stanford.nlp" % "stanford-corenlp" % "4.2.2",
   "edu.stanford.nlp" % "stanford-corenlp" % "4.2.2" classifier "models"
+
+  //topic model evaluation => DEPENDENCY NOT WORKING
+  //"io.github.gnupinguin" %% "ldacoherence_2.12" % "1.0"
 )

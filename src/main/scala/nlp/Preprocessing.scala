@@ -1,17 +1,17 @@
 package nlp
 
 import com.johnsnowlabs.nlp.annotator.{SentenceDetector, Tokenizer}
-import com.johnsnowlabs.nlp.annotators.{LemmatizerModel, Normalizer, StopWordsCleaner}
+import com.johnsnowlabs.nlp.annotators.{LemmatizerModel, NGramGenerator, Normalizer, StopWordsCleaner}
 import com.johnsnowlabs.nlp.base.{DocumentAssembler, Finisher}
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset}
-
+import org.apache.spark.sql.DataFrame
 import utils.IOUtils
-import domain.Tweet
 
 //Preprocess the data for topic modelling
 class Preprocessing(data:DataFrame) {
+
+  //min size for tweets after preprocessing
+  private val CLEAN_TEXT_MIN_SIZE = 5
 
   private val documentAssembler = new DocumentAssembler()
     .setInputCol("text")
@@ -36,7 +36,7 @@ class Preprocessing(data:DataFrame) {
     .setInputCols("stopwordClean")
     .setOutputCol("normalized")
     //hexcode for german vowels: http://www.javascripter.net/faq/accentedcharacters.htm
-    .setCleanupPatterns(Array("""[^a-zA-Z\xE4\xF6\xFC\xC4\xD6\xDC\xDF\s]""", "^http.*"))
+    .setCleanupPatterns(Array("^[@].*", """[^a-zA-Z\xE4\xF6\xFC\xC4\xD6\xDC\xDF\s]""", "^http.*", "^amp$"))
     .setLowercase(true)
     .setMinLength(2)
 
@@ -44,8 +44,14 @@ class Preprocessing(data:DataFrame) {
     .setInputCols("normalized")
     .setOutputCol("lemmatized")
 
-  private val finisher = new Finisher()
+  //build ngrams to find often reoccuring phrases for topic modeling
+  private val ngramGenerator = new NGramGenerator()
     .setInputCols("lemmatized")
+    .setOutputCol("ngrams")
+    .setN(2)
+
+  private val finisher = new Finisher()
+    .setInputCols("ngrams")
     .setOutputCols("cleanText")
     .setCleanAnnotations(false)
 
@@ -58,6 +64,7 @@ class Preprocessing(data:DataFrame) {
       stopwordCleaner,
       normalizer,
       lemmatizer,
+      ngramGenerator,
       finisher
     )
   )
@@ -70,8 +77,10 @@ class Preprocessing(data:DataFrame) {
 
   //if verbose: gives dataframe with intermediate results of the different cleaning steps
   def getResult(verbose:Boolean = false):DataFrame = {
-    if(verbose) result
-    else result
+
+    val filteredResult = filterTweetsWithMinSize(result, CLEAN_TEXT_MIN_SIZE)
+    if(verbose) filteredResult
+    else filteredResult
       .select(
         "tweetID",
         "createdAt",
@@ -85,11 +94,11 @@ class Preprocessing(data:DataFrame) {
         "sentiment")
   }
 
-  def filterUnnecessaryTweets(tweets:DataFrame):DataFrame = {
-    ???
+  def filterTweetsWithMinSize(tweets:DataFrame, size:Int):DataFrame = {
+    tweets.filter(row => row.getAs[List[String]]("cleanText").size >= size)
   }
 
-  def filterTweetsWithMinSize(tweets:DataFrame, size:Int):DataFrame = {
+  def finalize_preprocessing(tweets:DataFrame) = {
     ???
   }
 

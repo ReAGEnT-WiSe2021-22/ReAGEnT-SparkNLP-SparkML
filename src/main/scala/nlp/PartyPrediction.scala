@@ -1,10 +1,11 @@
 package nlp
 
-import org.apache.spark.ml.clustering.LDA
-import org.apache.spark.ml.feature.CountVectorizer
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.apache.spark.mllib.clustering.{LDAModel, OnlineLDAOptimizer}
+import nlp.eval.UMassCoherenceModel
+import org.apache.spark.ml.clustering.{LDA, LDAModel}
+import org.apache.spark.ml.feature.{CountVectorizer, CountVectorizerModel}
+import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions.{avg, col, udf}
 
 //TODO:
 //find topics of tweet
@@ -12,58 +13,27 @@ import org.apache.spark.rdd.RDD
 //try to predict party with NN-model
 class PartyPrediction(spark:SparkSession, data:DataFrame) extends Serializable {
 
-  val vectorizer = new CountVectorizer()
-    .setInputCol("cleanText")
-    .setOutputCol("features")
-    .setVocabSize(10000)
-    .setMinDF(3)
-
-  val vectorizerModel = vectorizer.fit(data)
-  val countVector = vectorizerModel.transform(data)
-
-  val ldaModel = getLDAModel(
-    countVector,
-    5,
-    "online",     //Optimizer, currently supported: "em", "online"
-    100
-  )
-
-  val result = ldaModel.transform(countVector)
-
   import spark.implicits._
+  val vectorizerModel = PartyPrediction.getVectorizedDataModel(data, "cleanText", "features", 2000, 3)
+  val vectorized_data = vectorizerModel.transform(data).cache
 
-  val vocabList = vectorizerModel.vocabulary
-  val topicIndices = ldaModel
-    .describeTopics(5)
-    .map(x => (x.getAs[Seq[Int]]("termIndices"), x.getAs[Seq[Double]]("termWeights")))
+  //create model
 
-  val topics = topicIndices.map { case (terms, weights) =>
-    terms.map(vocabList(_)).zip(weights)
-  }
+  //evaluate model
 
-  def vectorizeTokens(tokens:DataFrame, inputCol:String, outputCol:String, vocabSize:Int, minDF:Int):DataFrame = {
-    val cv = new CountVectorizer()
+  //train model
+
+}
+object PartyPrediction {
+  def getVectorizedDataModel(data:DataFrame, inputCol:String, outputCol:String, vocabSize:Int, minOccur:Int):CountVectorizerModel ={
+    val vectorizer = new CountVectorizer()
       .setInputCol(inputCol)
       .setOutputCol(outputCol)
       .setVocabSize(vocabSize)
-      .setMinDF(minDF)
+      .setMinDF(minOccur)
 
-    val countVector = cv.fit(tokens).transform(tokens)
-    countVector
-  }
-
-  def getLDAModel(data:DataFrame, num_topics:Int, optim:String="online", maxIter:Int) = {
-    val lda = new LDA()
-      .setK(num_topics)
-      .setOptimizer(optim)
-      .setMaxIter(maxIter)
-
-    val ldaModel = lda.fit(data)
-
-    ldaModel
-  }
-
-  def optimizeLDAModel(): Unit ={
-    ???
+    vectorizer.fit(data)
   }
 }
+
+

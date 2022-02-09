@@ -14,7 +14,7 @@ case class Tweet(
                   cleanText:List[String],
                   var sentiment:Double
                 ){
-  def setSentiment(sentiment:Double): Unit = {
+  def setSentiment(sentiment:Double) = {
     this.sentiment = sentiment
   }
 }
